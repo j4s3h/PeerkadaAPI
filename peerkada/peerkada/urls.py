@@ -33,6 +33,7 @@ urlpatterns = [
     path ('v1p0/calculate/stats/', CalculateAveragesView.as_view(), name ='calculate_profile_average'),
     path ('v1p0/user/notification/',GetNotificationView.as_view(), name = 'get_notification'),
     path('v1p0/user/notification/read/<notification_id>', MarkNotificationAsReadView.as_view(), name='mark_notification_as_read'),
+
 ]
 
     

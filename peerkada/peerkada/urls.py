@@ -23,6 +23,11 @@ from core.features.versions.v1p0.get_stats.views.get_stats_views import GetStats
 from core.features.versions.v1p0.get_stats_with_average.views.display_stats_with_average import CalculateAveragesView
 from core.features.versions.v1p0.get_notifications.views.get_notification_views import GetNotificationView
 from core.features.versions.v1p0.read_notification.views.read_notifications_views import MarkNotificationAsReadView
+from core.features.versions.v1p0.create_new_chat_or_display_chat.views.conversation_views import ConversationViews ,ConversationMessageViews, ReadConversationViews
+
+
+
+
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('v1p0/register/account/', RegisterAccountViews.as_view(), name = 'register_account'),
@@ -32,9 +37,16 @@ urlpatterns = [
     path ('v1p0/display/stats/', GetStatsView.as_view(), name = 'display_profile_stats'),
     path ('v1p0/calculate/stats/', CalculateAveragesView.as_view(), name ='calculate_profile_average'),
     path ('v1p0/user/notification/',GetNotificationView.as_view(), name = 'get_notification'),
-    path('v1p0/user/notification/read/<notification_id>', MarkNotificationAsReadView.as_view(), name='mark_notification_as_read'),
+    path ('v1p0/user/notification/read/<notification_id>', MarkNotificationAsReadView.as_view(), name='mark_notification_as_read'),
+    path ('v1p0/conversations/', ConversationViews.as_view(), name ='conversation'),
+    path ('v1p0/conversations/send/messages/', ConversationMessageViews.as_view(), name = 'send_message'),
+    path('v1p0/conversations/<str:conversation_id>/', ReadConversationViews.as_view(), name='read_conversation'),
 
-]
+
 
     
+    
+]
+
+         
 

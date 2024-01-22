@@ -1,6 +1,7 @@
 from django.db import models
-
+from django.utils.timesince import timesince
 from django.contrib.auth.models import AbstractUser
+from django.conf import settings
 
 class PeerkadaAccount(AbstractUser):
     id = models.CharField(max_length=5, primary_key=True)
@@ -19,7 +20,14 @@ class PeerkadaAccount(AbstractUser):
     modified = models.DateTimeField(auto_now=True)
     password = models.CharField(max_length=50)
     is_counselor = models.BooleanField(default=False)
+    avatar = models.ImageField(null=True)
     USERNAME_FIELD = 'username' 
+    def get_avatar(self):
+        if self.avatar:
+            return settings.WEBSITE_URL + self.avatar.url
+        else:
+            return 'https://picsum.photos/200/200'
+
     
 
 
@@ -58,6 +66,8 @@ class Conversation(models.Model):
     users =models.ManyToManyField(PeerkadaAccount, related_name='recieved_mesasages')
     created_at = models.DateTimeField(auto_now_add= True)
     modified_at =models.DateTimeField(auto_now_add= True)
+    def modified_at_formatted(self):
+       return timesince(self.created_at)
 
 class ConversationMessages(models.Model):
     id = models.CharField(max_length = 5 , primary_key=True)
@@ -68,7 +78,12 @@ class ConversationMessages(models.Model):
 
 
 class Notification(models.Model):
+    id = models.CharField(max_length = 5, primary_key = True)
     user = models.ForeignKey(PeerkadaAccount, on_delete=models.CASCADE)
     message = models.CharField(max_length=255)
     created_at = models.DateTimeField(auto_now_add=True)
     is_read = models.BooleanField(default=False)
+    def created_at_formatted(self):
+       return timesince(self.created_at)
+    
+    

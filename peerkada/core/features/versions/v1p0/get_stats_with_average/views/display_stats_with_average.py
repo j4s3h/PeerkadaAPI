@@ -4,6 +4,7 @@ from rest_framework.views import APIView
 from peerkada.utilities.constant import *
 from django.utils import timezone
 from datetime import timedelta
+from ..serializers.stats_serializers import AveragesSerializer
 
 
 class CalculateAveragesView(APIView):
@@ -16,16 +17,33 @@ class CalculateAveragesView(APIView):
         weekly_averages = self.calculate_averages(user_stats, weeks=1)
         monthly_averages = self.calculate_averages(user_stats, weeks=4)
 
-        message = 'Success'
-        data = {
-            'weekly_averages': weekly_averages,
-            'monthly_averages': monthly_averages,
-            'overall_averages': self.calculate_overall_averages(user_stats),  # Include overall averages
-        }
+        overall_averages = self.calculate_overall_averages(user_stats)
 
+        
+        serializer = AveragesSerializer({
+            'worried_average_weekly': weekly_averages['worried_average'],
+            'happy_average_weekly': weekly_averages['happy_average'],
+            'angry_average_weekly': weekly_averages['angry_average'],
+            'sad_average_weekly': weekly_averages['sad_average'],
+            'positive_average_weekly': weekly_averages['positive_average'],
+            'overall_average_weekly': overall_averages['overall_average'],
+
+            'worried_average_monthly': monthly_averages['worried_average'],
+            'happy_average_monthly': monthly_averages['happy_average'],
+            'angry_average_monthly': monthly_averages['angry_average'],
+            'sad_average_monthly': monthly_averages['sad_average'],
+            'positive_average_monthly': monthly_averages['positive_average'],
+            'overall_average_monthly': overall_averages['overall_average'],
+        })
+        data = serializer.data
+
+        message = 'Success'
         errors = {}
         status = ok
+
         return Response({"message": message, "data": data, "status": status, "errors": errors})
+
+
 
     def calculate_averages(self, stats, weeks):
         time_period_ago = timezone.now() - timedelta(weeks=weeks)

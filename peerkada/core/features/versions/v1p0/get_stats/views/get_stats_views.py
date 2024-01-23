@@ -48,7 +48,7 @@ class GetStatsView(APIView):
             return
 
         # Create a notification for the user
-        Notification.objects.create(user=stat.created_by, message=message)
+        Notification.objects.create(id = generate_uuid(), user=stat.created_by, message=message)
 
         # Retrieve user's notifications
         user_notifications = Notification.objects.filter(user=stat.created_by).order_by('created_at')

@@ -2,8 +2,8 @@ venv/
 media/
 static/
 *.py[c]
-tara_libot_web_admin/migrations/*.py
-tara_libot_web_client/migrations/*.py
+core/migrations/*.py
+core/migrations/*.py
 !*/migrations/init.py
 db.sqlite3
 peerkada/core/feautures/versions/v1p0/*

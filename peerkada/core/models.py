@@ -85,5 +85,31 @@ class Notification(models.Model):
     is_read = models.BooleanField(default=False)
     def created_at_formatted(self):
        return timesince(self.created_at)
-    
-    
+
+class Comment(models.Model):
+    id=models.CharField(max_length = 5, primary_key = True)
+    body = models.TextField(blank=True, null=True)
+    created_by = models.ForeignKey(PeerkadaAccount, related_name='comments', on_delete=models.CASCADE)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+class Like(models.Model):
+    id=models.CharField(max_length = 5, primary_key = True)
+    created_by = models.ForeignKey(PeerkadaAccount, related_name='likes', on_delete=models.CASCADE)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+
+class EmotionsSharing(models.Model):
+    id=models.CharField(max_length = 5, primary_key = True)
+    body = models.TextField()
+    comments = models.ManyToManyField(Comment, blank=True)
+    like = models.ManyToManyField(Like, blank=True)
+    created_by = models.ForeignKey(PeerkadaAccount, related_name = 'sharer', on_delete=models.CASCADE)
+
+class Appointment(models.Model):
+    id = models.CharField(max_length = 5, primary_key = True)
+    description = models.TextField()
+    counselor = models.ForeignKey(PeerkadaAccount, related_name = 'counselor_name', on_delete=models.CASCADE)
+    created_by = models.ForeignKey(PeerkadaAccount, related_name = 'appointee', on_delete=models.CASCADE)
+    created_at = models.DateTimeField(auto_now_add=True)
+    is_attended = models.BooleanField(default=False)
+

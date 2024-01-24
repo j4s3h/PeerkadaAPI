@@ -103,22 +103,22 @@ class ReadConversationViews(APIView):
         try:
             conversation = Conversation.objects.get(id=conversation_id, users=user)
         except Conversation.DoesNotExist:
-            message = 'not_Found'
-            data ={}
-            errors ={}
-            status = not_Found
-            return Response ({"message": message, "data": data, "status": status, "errors": errors })
+            message = 'not_found'
+            data = {}
+            errors = {}
+            status = 'not_found'
+            return Response({"message": message, "data": data, "status": status, "errors": errors })
 
         # Serialize the conversation data
         serializer = ReadConversationSerializer(conversation)
 
         # Create the response data
         message = 'Conversation'
-        data = serializer.data 
+        data = serializer.data
         status = ok
         errors = {}
 
         # Return the response
-        return Response ({"message": message, "data": data, "status": status, "errors": errors })
+        return Response({"message": message, "data": data, "status": status, "errors": errors })
     
     

@@ -18,7 +18,7 @@ from django.contrib import admin
 from django.urls import path
 from core.features.versions.v1p0.register_account.views.register_account_views import RegisterAccountViews, RegisterAccountCounselorViews
 from core.features.versions.v1p0.login.views.login_views import LoginView
-from core.features.versions.v1p0.forms_stats.views.create_form_stats import CreateFormStatsViews
+from core.features.versions.v1p0.create_forms_stats.views.create_form_stats import CreateFormStatsViews
 from core.features.versions.v1p0.get_stats.views.get_stats_views import GetStatsView
 from core.features.versions.v1p0.get_stats_with_average.views.display_stats_with_average import CalculateAveragesView
 from core.features.versions.v1p0.get_notifications.views.get_notification_views import GetNotificationView

@@ -27,9 +27,13 @@ class ConversationMessagesSerializer(serializers.ModelSerializer):
         sent_to = PeerkadaAccountSerializer()
         model = ConversationMessages
         fields = ['id', 'body', 'created_at', 'created_by','sent_to']
-
+class DisplayReadPeerkadaAccountSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = PeerkadaAccount
+        fields = ['id','name', 'username', 'place', 'avatar', 'is_counselor']
     
 class DisplayConversationSerializer(serializers.ModelSerializer):
+    users =  DisplayReadPeerkadaAccountSerializer(many=True)
     latest_message = serializers.SerializerMethodField()
 
     class Meta:
@@ -47,9 +51,12 @@ class DisplayConversationSerializer(serializers.ModelSerializer):
         data['latest_message'] = self.get_latest_message(instance)
         return data
 
+
 class ReadConversationSerializer(serializers.ModelSerializer):
+    users = DisplayReadPeerkadaAccountSerializer(many=True)
     messages = ConversationMessagesSerializer(many=True, read_only=True)
     
     class Meta:
         model = Conversation
         fields = ['id', 'users', 'created_at', 'modified_at','messages' ]
+

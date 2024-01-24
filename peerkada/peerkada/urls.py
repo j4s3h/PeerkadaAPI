@@ -25,7 +25,7 @@ from core.features.versions.v1p0.get_notifications.views.get_notification_views 
 from core.features.versions.v1p0.read_notification.views.read_notifications_views import MarkNotificationAsReadView
 from core.features.versions.v1p0.create_new_chat_or_display_chat.views.conversation_views import ConversationViews ,ConversationMessageViews, ReadConversationViews
 from core.features.versions.v1p0.create_appointment.views.create_appointment_views import CreateAppointmentView
-
+from core.features.versions.v1p0.display_appointment.views.display_appointment_views import DisplayAppointmentViews
 
 
 urlpatterns = [
@@ -42,7 +42,7 @@ urlpatterns = [
     path ('v1p0/conversations/send/messages/', ConversationMessageViews.as_view(), name = 'send_message'),
     path('v1p0/conversations/<str:conversation_id>/', ReadConversationViews.as_view(), name='read_conversation'),
     path('v1p0/create/appointment/', CreateAppointmentView.as_view(), name='create_appointment'),
-
+    path('v1p0/display/appointment/', DisplayAppointmentViews.as_view(), name='display_appointment_by_the_one_who_created_by'),
 
     
     

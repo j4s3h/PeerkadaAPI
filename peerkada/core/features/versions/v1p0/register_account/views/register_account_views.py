@@ -70,13 +70,20 @@ class RegisterAccountViews(APIView):
             )
 
             
-            account_data = PeerkadaAccount.objects.filter(id=uid).values('id', 'username', 'email', 'birthday', 'sex')
-            data = account_data.first()  # Use .first() to get the first item from the queryset
+            account_data = PeerkadaAccount.objects.filter(id=uid).values('id', 'username', 'email', 'birthday', 'sex', 'is_counselor')
+            formatted_data = {
+                'id': account_data[0]['id'],
+                'username': account_data[0]['username'],
+                'email': account_data[0]['email'],
+                'birthday': account_data[0]['birthday'].strftime('%Y/%m/%d'),  # Format the date here
+                'sex': account_data[0]['sex'],
+                'is_counselor': account_data[0]['is_counselor'],
+            }
 
             status_code = created
             message = 'Successfully Created'
 
-            return Response({"message": message, "data": data, "status": status_code, "errors": errors})
+            return Response({"message": message, "data": formatted_data, "status": status_code, "errors": errors})
 
         errors = serializer.errors
         status_code = bad_request
@@ -134,14 +141,22 @@ class RegisterAccountCounselorViews(APIView):
                 is_counselor=True
             )
 
-            # Fetch the created account data
-            account_data = PeerkadaAccount.objects.filter(id=uid).values('id', 'username', 'email', 'birthday', 'sex')
-            data = account_data.first()  # Use .first() to get the first item from the queryset
+            
+            account_data = PeerkadaAccount.objects.filter(id=uid).values('id', 'username', 'email', 'birthday', 'sex', 'is_counselor')
+            formatted_data = {
+                'id': account_data[0]['id'],
+                'username': account_data[0]['username'],
+                'email': account_data[0]['email'],
+                'birthday': account_data[0]['birthday'].strftime('%Y/%m/%d'),  # Format the date here
+                'sex': account_data[0]['sex'],
+                'is_counselor': account_data[0]['is_counselor'],
+            }
 
             status_code = created
             message = 'Successfully Created'
 
-            return Response({"message": message, "data": data, "status": status_code, "errors": errors})
+            return Response({"message": message, "data": formatted_data, "status": status_code, "errors": errors})
+
 
         errors = serializer.errors
         status_code = bad_request

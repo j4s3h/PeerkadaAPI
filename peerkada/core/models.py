@@ -109,6 +109,7 @@ class EmotionsSharing(models.Model):
 class Appointment(models.Model):
     id = models.CharField(max_length = 5, primary_key = True)
     description = models.TextField()
+    date = models.DateField(null=True)
     counselor = models.ForeignKey(PeerkadaAccount, related_name = 'counselor_name', on_delete=models.CASCADE)
     created_by = models.ForeignKey(PeerkadaAccount, related_name = 'appointee', on_delete=models.CASCADE)
     created_at = models.DateTimeField(auto_now_add=True)

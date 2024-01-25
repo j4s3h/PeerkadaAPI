@@ -15,7 +15,17 @@ class CreateAppointmentView(APIView):
         
 
         if serializer.is_valid():
-            # Assuming you have a helper function for generating UUID
+            if 'counselor' not in request.data:
+                message = 'counselor is required in form data'
+                status= bad_request
+                errors = {}
+                return Response({'message': message, 'status': status, 'errors': errors })
+            if 'date' not in request.data:
+                message = 'date is required in form data'
+                status= bad_request
+                errors = {}
+                return Response({'message': message, 'status': status, 'errors': errors })
+            
             uid = generate_uuid()
             counselor_id = request.data['counselor']
             counselor_instance = PeerkadaAccount.objects.get(id=counselor_id)
@@ -30,6 +40,7 @@ class CreateAppointmentView(APIView):
             appointment = Appointment.objects.create(
                 id=uid,
                 description=request.data['description'],
+                date =request.data['date'],
                 counselor=counselor_instance,
                 created_by=created_by,
             )
@@ -52,11 +63,12 @@ class CreateAppointmentView(APIView):
             'appointment': {
                 'id': uid,
                 'description': request.data['description'],
+                'date': request.data['date'],
                 'counselor': counselor_data,
                 'created_by': created_by_data,
             }
         }
-
+            errors = serializer.errors
             status_code = created
             message = 'Successfully Created'
             return Response({"message": message, "data": data, "status": status_code})
@@ -64,3 +76,4 @@ class CreateAppointmentView(APIView):
         errors = serializer.errors
         status_code = bad_request
         return Response({"status": status_code, "errors": errors})
+    

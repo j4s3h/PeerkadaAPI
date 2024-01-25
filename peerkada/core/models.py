@@ -104,6 +104,7 @@ class EmotionsSharing(models.Model):
     comments = models.ManyToManyField(Comment, blank=True)
     like = models.ManyToManyField(Like, blank=True)
     created_by = models.ForeignKey(PeerkadaAccount, related_name = 'sharer', on_delete=models.CASCADE)
+    created_at = models.DateTimeField(auto_now_add=True)
 
 class Appointment(models.Model):
     id = models.CharField(max_length = 5, primary_key = True)

@@ -28,6 +28,7 @@ from core.features.versions.v1p0.create_appointment.views.create_appointment_vie
 from core.features.versions.v1p0.display_appointment.views.display_appointment_views import DisplayAppointmentViews
 from core.features.versions.v1p0.edit_appointment.views.edit_appointment_views import EditAppointmentViews
 from core.features.versions.v1p0.delete_appointment.views.delete_appointment_views import DeleteAppointmentViews
+from core.features.versions.v1p0.create_emotions_sharing.views.create_emotions_views import CreateEmotionViews
 
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -45,7 +46,8 @@ urlpatterns = [
     path('v1p0/create/appointment/', CreateAppointmentView.as_view(), name='create_appointment'),
     path('v1p0/display/appointment/', DisplayAppointmentViews.as_view(), name='display_appointment_by_the_one_who_created_by'),
     path('v1p0/edit/appointment/<pk>/',EditAppointmentViews.as_view(),name = 'edit_appointment'),
-    path('v1p0/delete/appointment/<pk>/',DeleteAppointmentViews.as_view(),name = 'delete_appointment')
+    path('v1p0/delete/appointment/<pk>/',DeleteAppointmentViews.as_view(),name = 'delete_appointment'),
+    path('v1p0/create/emotion/', CreateEmotionViews.as_view(), name = 'create_emotion_views'),
 
     
     

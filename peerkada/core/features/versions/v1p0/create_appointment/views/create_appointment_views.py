@@ -8,70 +8,71 @@ from ..serializers.create_appointment_serializers import CreateAppointmentSerial
 
 class CreateAppointmentView(APIView):
     permission_classes = [IsAuthenticated]
+
     def post(self, request, *args, **kwargs):
         data = request.data.copy()
         data['created_by'] = request.user.id
-        serializer = CreateAppointmentSerializer(data=request.data)
-        
+        serializer = CreateAppointmentSerializer(data=data)
 
         if serializer.is_valid():
-            if 'counselor' not in request.data:
+            if 'counselor' not in data:
                 message = 'counselor is required in form data'
-                status= bad_request
-                errors = {}
-                return Response({'message': message, 'status': status, 'errors': errors })
-            if 'date' not in request.data:
-                message = 'date is required in form data'
-                status= bad_request
-                errors = {}
-                return Response({'message': message, 'status': status, 'errors': errors })
-            
-            uid = generate_uuid()
-            counselor_id = request.data['counselor']
-            counselor_instance = PeerkadaAccount.objects.get(id=counselor_id)
-            if not counselor_instance.is_counselor:
-                data ={}
-                message = 'bad request'
-                errors = 'User is not Counselor'
                 status = bad_request
-                return Response({"message": message, "data": data, "status": status, "errors": errors})
-            created_by = PeerkadaAccount.objects.get(id=request.user.id)
+                errors = {}
+                return Response({'message': message, 'status': status, 'errors': errors})
 
-            appointment = Appointment.objects.create(
+            uid = generate_uuid()
+            counselor_id = data['counselor']
+
+            try:
+                counselor_instance = PeerkadaAccount.objects.get(id=counselor_id)
+
+                if not counselor_instance.is_counselor:
+                    message = 'bad request'
+                    errors = 'User is not Counselor'
+                    status = bad_request
+                    return Response({"message": message, "data": {}, "status": status, "errors": errors})
+            except PeerkadaAccount.DoesNotExist:
+                # Handle the case where PeerkadaAccount with the specified counselor_id does not exist
+                message = 'bad request'
+                errors = 'PeerkadaAccount matching query does not exist.'
+                status = bad_request
+                return Response({"message": message, "data": {}, "status": status, "errors": errors})
+
+            # Ensure date is in 'YYYY-MM-DD' format before saving
+            formatted_date = serializer.validated_data['date'].strftime('%Y-%m-%d')
+            serializer.validated_data['date'] = formatted_date
+
+           
+            appointment_instance = serializer.save(
                 id=uid,
-                description=request.data['description'],
-                date =request.data['date'],
                 counselor=counselor_instance,
-                created_by=created_by,
+                created_by=PeerkadaAccount.objects.get(id=request.user.id),
             )
-            created_by_data = {
-                'id': request.user.id,
-                'username': request.user.username,
-                'email': request.user.email,
-                'birthday': str(request.user.birthday),
-                'sex': request.user.sex,
-            }
-            counselor_data = {
-                'id': counselor_instance.id,
-                'username': counselor_instance.username,
-                'email':counselor_instance.email
-            }
-            
 
             
-            data = {
-            'appointment': {
-                'id': uid,
-                'description': request.data['description'],
-                'date': request.data['date'],
-                'counselor': counselor_data,
-                'created_by': created_by_data,
+            response_data = {
+                'appointment': {
+                    'id': appointment_instance.id,
+                    'description': appointment_instance.description,
+                    'date': appointment_instance.date,  # Use the formatted date
+                    'counselor': {
+                        'id': counselor_instance.id,
+                        'username': counselor_instance.username,
+                        'email': counselor_instance.email,
+                    },
+                    'created_by': {
+                        'id': request.user.id,
+                        'username': request.user.username,
+                        'email': request.user.email,
+                        'birthday': str(request.user.birthday),
+                        'sex': request.user.sex,
+                    },
+                }
             }
-        }
-            errors = serializer.errors
-            status_code = created
+
             message = 'Successfully Created'
-            return Response({"message": message, "data": data, "status": status_code})
+            return Response({"message": message, "data": response_data, "status": created})
 
         errors = serializer.errors
         status_code = bad_request

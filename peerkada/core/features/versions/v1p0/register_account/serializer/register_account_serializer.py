@@ -3,9 +3,17 @@ from core.models import PeerkadaAccount
 from django.contrib.auth.hashers import make_password
 from django.contrib.auth.password_validation import validate_password
 from django.core.exceptions import ValidationError
-
+import datetime
+class CustomDateFormatField(serializers.DateField):
+    def to_internal_value(self, value):
+        try:
+            # Parse the input date in 'YYYY/MM/DD' format
+            date_obj = datetime.datetime.strptime(value, '%Y/%m/%d').date()
+            return date_obj
+        except ValueError:
+            raise serializers.ValidationError("Invalid date format. Please use 'YYYY/MM/DD'.")
 class RegisterAccountSerializer(serializers.ModelSerializer):
-    birthday = serializers.DateField(format="%m-%d-%Y")
+    birthday = CustomDateFormatField()
     
     # New fields for password and password confirmation
     password = serializers.CharField(write_only=True, required=True, max_length=50)

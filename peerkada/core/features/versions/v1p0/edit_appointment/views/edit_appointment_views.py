@@ -19,6 +19,9 @@ class EditAppointmentViews(APIView):
             errors = {}
             return Response({"message": message, "data": data, "status": status_code, "errors": errors})
 
+    def perform_update(self, serializer):
+        serializer.save(modified_by=self.request.user)
+
     def put(self, request, pk):
         data = {}
         errors = {}
@@ -27,20 +30,21 @@ class EditAppointmentViews(APIView):
 
         appointment = self.get_appointment(pk)
 
-        # Check if the user making the request is the same as the one who created the appointment
-        if request.user != appointment.created_by:
-            message = 'You do not have permission to edit this appointment.'
-            status =forbidden  # Use appropriate HTTP status code for permission denied
-        else:
+        
+        if request.user == appointment.created_by or request.user.is_counselor:
             serializer = EditAppointmentSerializer(appointment, data=request.data)
             if serializer.is_valid():
-                serializer.save()
+                
+                self.perform_update(serializer)
                 data = serializer.data
                 message = 'Successfully Updated'
-                status = ok
+                status_code = ok
             else:
                 message = 'Error'
-                status = bad_request
+                status_code = bad_request
                 errors = serializer.errors
+        else:
+            message = 'You do not have permission to edit this appointment.'
+            status_code = forbidden
 
-        return Response({"message": message, "data": data, "status": status, "errors": errors})
+        return Response({"message": message, "data": data, "status": status_code, "errors": errors})

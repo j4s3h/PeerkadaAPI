@@ -38,12 +38,12 @@ class CreateFormStatsViews(APIView):
         elif 14 <= stat.total_score <= 42:
             message = "You are showing signs of being mentally unwell. Please take a quick rest and meditate."
             return
-
+       
         # Retrieve user's notifications
         user_notifications = Notification.objects.filter(user=stat.created_by).order_by('created_at')
-
+        uid =generate_uuid()
         # Create a notification for the user
-        new_notification = Notification.objects.create(user=stat.created_by, message=message)
+        new_notification = Notification.objects.create(user=stat.created_by,id= uid, message=message)
 
         # Delete the oldest notification if there are more than 10
         if user_notifications.count() > 10:

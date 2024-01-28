@@ -18,11 +18,13 @@ class DisplayAppointmentViews(APIView):
         requesting_user = request.user
         appointments = self.get_appointments(requesting_user)
 
+        # Serialize the list of instances, not the queryset itself
         serializer = DisplayAppointmentSerializer(appointments, many=True)
         data = serializer.data
 
-        status_code = ok
-        message = "Appointment requests retrieved successfully"
-        errors = {}
-
-        return Response({"message": message, "data": data, "status": status_code, "errors": errors})
+        return Response({
+            "message": "Appointment requests retrieved successfully",
+            "data": data,
+            "status": ok,
+            "errors": {}
+        })

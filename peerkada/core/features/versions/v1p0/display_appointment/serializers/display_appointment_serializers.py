@@ -9,11 +9,11 @@ class DisplayReadPeerkadaAccountSerializer(serializers.ModelSerializer):
         fields = ['id','name', 'username', 'place', 'avatar', 'is_counselor']
 
 class DisplayAppointmentSerializer(serializers.ModelSerializer):
-    created_by = DisplayReadPeerkadaAccountSerializer(many=False, read_only = True)
+    name = serializers.CharField(source='created_by.name', read_only=True)
+    
     
     class Meta:
         model= Appointment
-        fields = ['id','date','description','created_by',] 
-        
+        fields = ['id', 'date', 'description', 'name']
 
 

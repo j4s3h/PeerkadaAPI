@@ -37,7 +37,8 @@ class LoginView(APIView):
             refresh_token = RefreshToken.for_user(serializer.user)
             data = {
                 'access_token': str(serializer.validated_data['access']),
-                'refresh_token': str(refresh_token)
+                'refresh_token': str(refresh_token),
+                'is_counselor': user.is_counselor
             }
             message =  'Successfully Login'
             status = ok

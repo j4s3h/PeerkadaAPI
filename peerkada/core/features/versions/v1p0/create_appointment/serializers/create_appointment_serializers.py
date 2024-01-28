@@ -16,7 +16,7 @@ class CreateAppointmentSerializer(serializers.Serializer):
 
     class Meta:
         model = Appointment
-        fields = ['description', 'date', 'counselor']
+        fields = ['description', 'date',]
 
     def create(self, validated_data):
         # Create and return the Appointment instance

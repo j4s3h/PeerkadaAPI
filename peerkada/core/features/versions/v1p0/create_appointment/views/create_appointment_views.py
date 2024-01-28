@@ -15,38 +15,17 @@ class CreateAppointmentView(APIView):
         serializer = CreateAppointmentSerializer(data=data)
 
         if serializer.is_valid():
-            if 'counselor' not in data:
-                message = 'counselor is required in form data'
-                status = bad_request
-                errors = {}
-                return Response({'message': message, 'status': status, 'errors': errors})
+           
 
             uid = generate_uuid()
-            counselor_id = data['counselor']
-
-            try:
-                counselor_instance = PeerkadaAccount.objects.get(id=counselor_id)
-
-                if not counselor_instance.is_counselor:
-                    message = 'bad request'
-                    errors = 'User is not Counselor'
-                    status = bad_request
-                    return Response({"message": message, "data": {}, "status": status, "errors": errors})
-            except PeerkadaAccount.DoesNotExist:
-                # Handle the case where PeerkadaAccount with the specified counselor_id does not exist
-                message = 'bad request'
-                errors = 'PeerkadaAccount matching query does not exist.'
-                status = bad_request
-                return Response({"message": message, "data": {}, "status": status, "errors": errors})
-
-            # Ensure date is in 'YYYY-MM-DD' format before saving
+            
             formatted_date = serializer.validated_data['date'].strftime('%Y-%m-%d')
             serializer.validated_data['date'] = formatted_date
 
            
             appointment_instance = serializer.save(
                 id=uid,
-                counselor=counselor_instance,
+               
                 created_by=PeerkadaAccount.objects.get(id=request.user.id),
             )
 
@@ -56,11 +35,7 @@ class CreateAppointmentView(APIView):
                     'id': appointment_instance.id,
                     'description': appointment_instance.description,
                     'date': appointment_instance.date,  # Use the formatted date
-                    'counselor': {
-                        'id': counselor_instance.id,
-                        'username': counselor_instance.username,
-                        'email': counselor_instance.email,
-                    },
+                    
                     'created_by': {
                         'id': request.user.id,
                         'username': request.user.username,

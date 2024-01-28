@@ -6,9 +6,10 @@ class DisplayReadPeerkadaAccountSerializer(serializers.ModelSerializer):
         fields = ['id','name', 'username', 'place', 'avatar', 'is_counselor']
 
 class DisplayEmotionSharingSerializer(serializers.ModelSerializer):
+    name = serializers.CharField(source='created_by.name', read_only=True)
     class Meta:
         model = EmotionsSharing
-        fields = ['id','body', 'comments', 'like', 'created_at', 'created_by']
+        fields = ['id','body', 'comments', 'like', 'created_at', 'name']
 
 
 

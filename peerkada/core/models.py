@@ -115,3 +115,18 @@ class Appointment(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     is_attended = models.BooleanField(default=False)
 
+class ConversationWithCounselors(models.Model):
+    id = models.CharField(max_length = 5 , primary_key=True)
+    users =models.ManyToManyField(PeerkadaAccount, related_name='recieved_mesasages_counselor')
+    created_at = models.DateTimeField(auto_now_add= True)
+    modified_at =models.DateTimeField(auto_now_add= True)
+    def modified_at_formatted(self):
+       return timesince(self.created_at)
+
+class CounselorMessages(models.Model):
+    id = models.CharField(max_length = 5 , primary_key=True)
+    sent_to = models.ForeignKey(ConversationWithCounselors, related_name='messages_counselor', on_delete=models.CASCADE)
+    body = models.TextField()
+    created_at = models.DateTimeField(auto_now_add= True)
+    created_by =models.ForeignKey(PeerkadaAccount, related_name = 'sent_by', on_delete=models.CASCADE)
+

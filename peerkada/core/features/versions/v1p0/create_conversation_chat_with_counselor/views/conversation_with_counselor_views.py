@@ -15,10 +15,10 @@ class CreateCounselorMessagesViews(APIView):
         data = {}
         user = request.user
 
-        # Fetch all PeerkadaAccount instances with is_counselor=True
+        
         potential_recipients = PeerkadaAccount.objects.filter(is_counselor=True)
 
-        # Check if there are any potential recipients
+        
         if not potential_recipients.exists():
             errors = 'No counselors found.'
             status = not_Found
@@ -29,7 +29,7 @@ class CreateCounselorMessagesViews(APIView):
             status = forbidden
             return Response({"status": status, "errors": errors})
 
-        # Check if a conversation already exists between the user and counselors
+       
         existing_conversation = ConversationWithCounselors.objects.filter(users=user)
         if existing_conversation.exists():
             # Use the existing conversation
@@ -154,26 +154,38 @@ class ReadCounselorMesssagesViews(APIView):
     def get(self, request, *args, **kwargs):
         user = request.user
         conversation_id = request.query_params.get('conversation_id', None)
+        is_counselor = user.is_counselor
+        status = ok  # Assume success by default
+        errors = {}
 
-        if conversation_id:
-            # If conversation_id is provided, retrieve information about the specified conversation
+        if not is_counselor:
+            
             try:
-                conversation = ConversationWithCounselors.objects.get(id=conversation_id, users=user)
+                conversation = ConversationWithCounselors.objects.get(users=user)
+                serializer = ConversationWithCounselorsSerializer(conversation)
+                message = 'Conversation'
+                data = serializer.data
             except ConversationWithCounselors.DoesNotExist:
                 message = 'not_found'
                 data = {}
-                errors = {}
-                status = not_Found
+                status = not_Found  # Set status to not found if conversation is not found
 
-            is_counselor = user.is_counselor
-            serializer = ConversationWithCounselorsSerializer(conversation)
-            message = 'Conversation'
-            data = serializer.data
-        else:
-            # If no conversation_id is provided, retrieve information about all conversations with only the latest message
+        elif is_counselor and conversation_id:
+            # If the user is a counselor and conversation_id is provided, retrieve information about the specified conversation
+            try:
+                conversation = ConversationWithCounselors.objects.get(id=conversation_id, users=user)
+                serializer = ConversationWithCounselorsSerializer(conversation)
+                message = 'Conversation'
+                data = serializer.data
+            except ConversationWithCounselors.DoesNotExist:
+                message = 'not_found'
+                data = {}
+                status = not_Found  # Set status to not found if conversation is not found
+
+        elif is_counselor:
+            # If the user is a counselor and no conversation_id is provided, retrieve information about all conversations
             conversations = ConversationWithCounselors.objects.filter(users=user)
             conversations_info = []
-            is_counselor = user.is_counselor
 
             for conversation in conversations:
                 latest_message = CounselorMessages.objects.filter(sent_to=conversation).latest('created_at')
@@ -187,12 +199,10 @@ class ReadCounselorMesssagesViews(APIView):
                 }
                 conversations_info.append(conversation_info)
 
-            
             message = 'Conversations'
             data = conversations_info
-        
-        status = ok
-        errors = {}
 
         # Return the response
-        return Response({"message": message, "is_counselor": is_counselor, "data": data, "status": status, "errors": errors })
+        return Response({"message": message, "is_counselor": is_counselor, "data": data, "status": status, "errors": errors})
+        
+

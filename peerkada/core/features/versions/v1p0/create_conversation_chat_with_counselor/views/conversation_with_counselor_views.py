@@ -164,8 +164,8 @@ class ReadCounselorMesssagesViews(APIView):
                 data = {}
                 errors = {}
                 status = not_Found
-                return Response({"message": message, "data": data, "status": status, "errors": errors })
 
+            is_counselor = user.is_counselor
             serializer = ConversationWithCounselorsSerializer(conversation)
             message = 'Conversation'
             data = serializer.data
@@ -173,6 +173,7 @@ class ReadCounselorMesssagesViews(APIView):
             # If no conversation_id is provided, retrieve information about all conversations with only the latest message
             conversations = ConversationWithCounselors.objects.filter(users=user)
             conversations_info = []
+            is_counselor = user.is_counselor
 
             for conversation in conversations:
                 latest_message = CounselorMessages.objects.filter(sent_to=conversation).latest('created_at')
@@ -186,13 +187,12 @@ class ReadCounselorMesssagesViews(APIView):
                 }
                 conversations_info.append(conversation_info)
 
+            
             message = 'Conversations'
             data = conversations_info
-
-        status = 'ok'
+        
+        status = ok
         errors = {}
 
         # Return the response
-        return Response({"message": message, "data": data, "status": status, "errors": errors })
-
-   
+        return Response({"message": message, "is_counselor": is_counselor, "data": data, "status": status, "errors": errors })

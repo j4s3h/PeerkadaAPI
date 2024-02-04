@@ -190,12 +190,10 @@ class ReadCounselorMesssagesViews(APIView):
             for conversation in conversations:
                 latest_message = CounselorMessages.objects.filter(sent_to=conversation).latest('created_at')
                 conversation_info = {
-                    'conversation_id': conversation.id,
-                    'latest_message': {
+                    'conversation_id': conversation.id,                    
                         'content': latest_message.body,
                         'timestamp': latest_message.created_at,
                         'sent_by': latest_message.created_by.name,
-                    }
                 }
                 conversations_info.append(conversation_info)
 

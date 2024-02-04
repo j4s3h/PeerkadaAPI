@@ -56,7 +56,7 @@ urlpatterns = [
     path('v1p0/display/counselor/', DisplayPeerkadaCounselorViews.as_view(), name = 'display_counselor'),
     path('v1p0/chat/', CreateCounselorMessagesViews.as_view(), name = 'create_counselor_messsages'),
     path('v1p0/chat/<str:conversation_id>/', UserReplyToMessagesViews.as_view(),name ='view_conversation'),
-    path('v1p0/display/chat/<str:conversation_id>/',ReadCounselorMesssagesViews.as_view(), name = 'read_counselor_chat')
+    path('v1p0/display/chat/',ReadCounselorMesssagesViews.as_view(), name = 'read_counselor_chat')
     
 ]
 

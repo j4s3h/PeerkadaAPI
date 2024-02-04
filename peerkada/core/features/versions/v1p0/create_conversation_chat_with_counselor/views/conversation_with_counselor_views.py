@@ -194,6 +194,7 @@ class ReadCounselorMesssagesViews(APIView):
                         'content': latest_message.body,
                         'timestamp': latest_message.created_at,
                         'sent_by': latest_message.created_by.name,
+                        'is_counselor':latest_message.created_by.is_counselor
                 }
                 conversations_info.append(conversation_info)
 

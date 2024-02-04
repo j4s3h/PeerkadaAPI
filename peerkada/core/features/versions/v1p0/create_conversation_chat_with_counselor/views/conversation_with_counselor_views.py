@@ -1,4 +1,4 @@
-from core.models import ConversationWithCounselors, ConversationMessages, PeerkadaAccount, CounselorMessages
+from core.models import ConversationWithCounselors, PeerkadaAccount, CounselorMessages
 from peerkada.utilities.generate_uid import generate_uuid
 from peerkada.utilities.constant import *
 from rest_framework.views import APIView
@@ -164,7 +164,7 @@ class ReadCounselorMesssagesViews(APIView):
                 data = {}
                 errors = {}
                 status = not_Found
-                return Response({"message": message, "data": data, "status": status, "errors": errors })
+
             is_counselor = user.is_counselor
             serializer = ConversationWithCounselorsSerializer(conversation)
             message = 'Conversation'
@@ -174,7 +174,6 @@ class ReadCounselorMesssagesViews(APIView):
             conversations = ConversationWithCounselors.objects.filter(users=user)
             conversations_info = []
             is_counselor = user.is_counselor
-            
 
             for conversation in conversations:
                 latest_message = CounselorMessages.objects.filter(sent_to=conversation).latest('created_at')
@@ -187,6 +186,7 @@ class ReadCounselorMesssagesViews(APIView):
                     }
                 }
                 conversations_info.append(conversation_info)
+
             
             message = 'Conversations'
             data = conversations_info

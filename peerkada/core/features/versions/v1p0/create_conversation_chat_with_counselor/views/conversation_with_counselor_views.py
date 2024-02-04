@@ -151,28 +151,48 @@ class UserReplyToMessagesViews(APIView):
 class ReadCounselorMesssagesViews(APIView):
     permission_classes = [IsAuthenticated]
 
-    def get(self, request, conversation_id, *args, **kwargs):
+    def get(self, request, *args, **kwargs):
         user = request.user
+        conversation_id = request.query_params.get('conversation_id', None)
 
-        # Ensure the conversation exists and the user is a part of it
-        try:
-            conversation = ConversationWithCounselors.objects.get(id=conversation_id, users=user)
-        except ConversationWithCounselors.DoesNotExist:
-            message = 'not_found'
-            data = {}
-            errors = {}
-            status = 'not_found'
-            return Response({"message": message, "data": data, "status": status, "errors": errors })
+        if conversation_id:
+            # If conversation_id is provided, retrieve information about the specified conversation
+            try:
+                conversation = ConversationWithCounselors.objects.get(id=conversation_id, users=user)
+            except ConversationWithCounselors.DoesNotExist:
+                message = 'not_found'
+                data = {}
+                errors = {}
+                status = not_Found
+                return Response({"message": message, "data": data, "status": status, "errors": errors })
+            is_counselor = user.is_counselor
+            serializer = ConversationWithCounselorsSerializer(conversation)
+            message = 'Conversation'
+            data = serializer.data
+        else:
+            # If no conversation_id is provided, retrieve information about all conversations with only the latest message
+            conversations = ConversationWithCounselors.objects.filter(users=user)
+            conversations_info = []
+            is_counselor = user.is_counselor
+            
 
-        # Serialize the conversation data
-        serializer = ConversationWithCounselorsSerializer(conversation)
-        print(serializer.data)
-
-        # Create the response data
-        message = 'Conversation'
-        data = serializer.data
-        status = 'ok'
+            for conversation in conversations:
+                latest_message = CounselorMessages.objects.filter(sent_to=conversation).latest('created_at')
+                conversation_info = {
+                    'conversation_id': conversation.id,
+                    'latest_message': {
+                        'content': latest_message.body,
+                        'timestamp': latest_message.created_at,
+                        'sent_by': latest_message.created_by.name,
+                    }
+                }
+                conversations_info.append(conversation_info)
+            
+            message = 'Conversations'
+            data = conversations_info
+        
+        status = ok
         errors = {}
 
         # Return the response
-        return Response({"message": message, "data": data, "status": status, "errors": errors })
+        return Response({"message": message, "is_counselor": is_counselor, "data": data, "status": status, "errors": errors })

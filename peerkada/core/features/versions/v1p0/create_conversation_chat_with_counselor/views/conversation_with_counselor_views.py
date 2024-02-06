@@ -166,7 +166,7 @@ class ReadCounselorMesssagesViews(APIView):
                 message = 'Conversation'
                 data = serializer.data
             except ConversationWithCounselors.DoesNotExist:
-                message = 'Does not Exist'
+                message = 'not_found'
                 data = {}
                 status = not_Found  # Set status to not found if conversation is not found
 
@@ -183,18 +183,33 @@ class ReadCounselorMesssagesViews(APIView):
                 status = not_Found  # Set status to not found if conversation is not found
 
         elif is_counselor:
-                # If the user is a counselor and no conversation_id is provided, retrieve information about all conversations
-                conversations = ConversationWithCounselors.objects.filter(users=user)
-                if conversations.exists():
-                    serializer = ConversationWithCounselorsSerializer(conversations, many=True)
-                    message = 'Conversations'
-                    data = serializer.data
-                    status =ok
-                else:
-                    message = 'not_found'
-                    data = []
-                    status = not_Found
+            # If the user is a counselor and no conversation_id is provided, retrieve information about all conversations
+            conversations = ConversationWithCounselors.objects.filter(users=user)
+            conversations_info = []
 
+            for conversation in conversations:
+                messages = CounselorMessages.objects.filter(sent_to=conversation)
+                messages_info = []
+                for message in messages:
+                    message_info = {
+                        'body': message.body,
+                        'created_at': message.created_at,
+                        'created_by':message.created_by.name,
+                            'username': message.created_by.username,
+                            'is_counselor': message.created_by.is_counselor
+                        
+                    }
+                    messages_info.append(message_info)
+
+                conversation_info = {
+                    'conversation_id': conversation.id,
+                    'messages': messages_info
+                }
+                conversations_info.append(conversation_info)
+
+            message = 'Conversations'
+            data = conversations_info
+            status =ok
         # Return the response
         return Response({"message": message, "is_counselor": is_counselor, "data": data, "status": status, "errors": errors})
         

@@ -166,7 +166,7 @@ class ReadCounselorMesssagesViews(APIView):
                 message = 'Conversation'
                 data = serializer.data
             except ConversationWithCounselors.DoesNotExist:
-                message = 'not_found'
+                message = 'Does not Exist'
                 data = {}
                 status = not_Found  # Set status to not found if conversation is not found
 
@@ -183,23 +183,17 @@ class ReadCounselorMesssagesViews(APIView):
                 status = not_Found  # Set status to not found if conversation is not found
 
         elif is_counselor:
-            # If the user is a counselor and no conversation_id is provided, retrieve information about all conversations
-            conversations = ConversationWithCounselors.objects.filter(users=user)
-            conversations_info = []
-
-            for conversation in conversations:
-                latest_message = CounselorMessages.objects.filter(sent_to=conversation).latest('created_at')
-                conversation_info = {
-                    'conversation_id': conversation.id,                    
-                        'content': latest_message.body,
-                        'timestamp': latest_message.created_at,
-                        'sent_by': latest_message.created_by.name,
-                        'is_counselor':latest_message.created_by.is_counselor
-                }
-                conversations_info.append(conversation_info)
-
-            message = 'Conversations'
-            data = conversations_info
+                # If the user is a counselor and no conversation_id is provided, retrieve information about all conversations
+                conversations = ConversationWithCounselors.objects.filter(users=user)
+                if conversations.exists():
+                    serializer = ConversationWithCounselorsSerializer(conversations, many=True)
+                    message = 'Conversations'
+                    data = serializer.data
+                    status =ok
+                else:
+                    message = 'not_found'
+                    data = []
+                    status = not_Found
 
         # Return the response
         return Response({"message": message, "is_counselor": is_counselor, "data": data, "status": status, "errors": errors})

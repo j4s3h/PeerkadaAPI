@@ -35,7 +35,7 @@ class CreateCounselorMessagesViews(APIView):
             # Use the existing conversation
             conversation = existing_conversation.first()
         else:
-            # Create a new conversation with all counselors
+            
             serializer = CreateConversationWithCounselorsSerializer(
                 data={'users': [user.id] + list(potential_recipients.values_list('id', flat=True))}
             )
@@ -155,11 +155,10 @@ class ReadCounselorMesssagesViews(APIView):
         user = request.user
         conversation_id = request.query_params.get('conversation_id', None)
         is_counselor = user.is_counselor
-        status = ok  # Assume success by default
+        status = 'ok'  # Assume success by default
         errors = {}
 
         if not is_counselor:
-            
             try:
                 conversation = ConversationWithCounselors.objects.get(users=user)
                 serializer = ConversationWithCounselorsSerializer(conversation)
@@ -168,7 +167,7 @@ class ReadCounselorMesssagesViews(APIView):
             except ConversationWithCounselors.DoesNotExist:
                 message = 'not_found'
                 data = {}
-                status = not_Found  # Set status to not found if conversation is not found
+                status = 'not_found'  # Set status to not found if conversation is not found
 
         elif is_counselor and conversation_id:
             # If the user is a counselor and conversation_id is provided, retrieve information about the specified conversation
@@ -180,7 +179,7 @@ class ReadCounselorMesssagesViews(APIView):
             except ConversationWithCounselors.DoesNotExist:
                 message = 'not_found'
                 data = {}
-                status = not_Found  # Set status to not found if conversation is not found
+                status = 'not_found'  # Set status to not found if conversation is not found
 
         elif is_counselor:
             # If the user is a counselor and no conversation_id is provided, retrieve information about all conversations
@@ -190,26 +189,40 @@ class ReadCounselorMesssagesViews(APIView):
             for conversation in conversations:
                 messages = CounselorMessages.objects.filter(sent_to=conversation)
                 messages_info = []
+                other_usernames = set()  # Store unique usernames of non-counselor users
+
                 for message in messages:
+                    sender_username = message.created_by.username  # Default to sender's username
+                    if not message.created_by.is_counselor:
+                        other_usernames.add(message.created_by.username)  # Add sender's username if not a counselor
+
                     message_info = {
                         'body': message.body,
                         'created_at': message.created_at,
-                        'created_by':message.created_by.name,
-                            'username': message.created_by.username,
-                            'is_counselor': message.created_by.is_counselor
-                        
+                        'created_by': message.created_by.name if not message.created_by.is_counselor else message.created_by.username,
+                        'username': sender_username,
+                        'is_counselor': message.created_by.is_counselor
                     }
                     messages_info.append(message_info)
 
+                if other_usernames:
+                    
+                    name = next(iter(other_usernames))
+                else:
+                    name = None
+
                 conversation_info = {
+                    'username': name,
                     'conversation_id': conversation.id,
-                    'messages': messages_info
+                    'messages': messages_info,
+                    
                 }
                 conversations_info.append(conversation_info)
 
             message = 'Conversations'
             data = conversations_info
-            status =ok
+            status = ok
+
         # Return the response
         return Response({"message": message, "is_counselor": is_counselor, "data": data, "status": status, "errors": errors})
         

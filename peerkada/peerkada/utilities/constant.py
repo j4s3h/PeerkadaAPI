@@ -1,3 +1,4 @@
+from rest_framework.permissions import BasePermission
 # 1xx: Information
 Continue = '100' 
 switching_protocols = '101' 	
@@ -42,3 +43,18 @@ request_URI_too_Long = '414'
 unsupported_media_type = '415' 	
 range_not_satisfiable = '416' 	
 expectation_failed = '417' 
+
+
+
+class IsCounselorOrReadOnly(BasePermission):
+    """
+    Custom permission to only allow counselors to access the endpoint.
+    """
+    
+    def has_permission(self, request, view):
+        # Allow GET requests for everyone
+        if request.method == 'GET':
+            return True
+        
+        # Restrict other requests to counselors only
+        return request.user.is_authenticated and request.user.is_counselor

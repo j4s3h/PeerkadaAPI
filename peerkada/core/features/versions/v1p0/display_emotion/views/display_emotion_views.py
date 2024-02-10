@@ -12,15 +12,13 @@ class DisplayEmotionViews(APIView):
     permission_classes = [IsAuthenticated]
 
     def get(self, request):
-        # Use PageNumberPagination to paginate the results
         paginator = PageNumberPagination()
         paginator.page_size = 10  # Set the number of items per page
 
-        # Get the paginated data
-        emotions = EmotionsSharing.objects.all().order_by('created_at')
+        
+        emotions = EmotionsSharing.objects.all().order_by('-created_at')
         result_page = paginator.paginate_queryset(emotions, request)
 
-        # Serialize the paginated data
         serializer = DisplayEmotionSharingSerializer(result_page, many=True)
         data = serializer.data 
         message = 'Success'

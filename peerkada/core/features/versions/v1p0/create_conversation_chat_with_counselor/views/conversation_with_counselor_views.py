@@ -155,7 +155,7 @@ class ReadCounselorMesssagesViews(APIView):
         user = request.user
         conversation_id = request.query_params.get('conversation_id', None)
         is_counselor = user.is_counselor
-        status = 'ok'  # Assume success by default
+        status = ok  # Assume success by default
         errors = {}
 
         if not is_counselor:
@@ -167,7 +167,7 @@ class ReadCounselorMesssagesViews(APIView):
             except ConversationWithCounselors.DoesNotExist:
                 message = 'not_found'
                 data = {}
-                status = 'not_found'  # Set status to not found if conversation is not found
+                status = not_Found  # Set status to not found if conversation is not found
 
         elif is_counselor and conversation_id:
             # If the user is a counselor and conversation_id is provided, retrieve information about the specified conversation
@@ -179,7 +179,7 @@ class ReadCounselorMesssagesViews(APIView):
             except ConversationWithCounselors.DoesNotExist:
                 message = 'not_found'
                 data = {}
-                status = 'not_found'  # Set status to not found if conversation is not found
+                status = not_Found  # Set status to not found if conversation is not found
 
         elif is_counselor:
             # If the user is a counselor and no conversation_id is provided, retrieve information about all conversations

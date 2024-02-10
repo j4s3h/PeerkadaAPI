@@ -28,11 +28,17 @@ class EditAppointmentViews(APIView):
         created_by = instance.created_by
         modified_by = self.request.user
 
+        # Check if the appointment has been approved
+        if instance.is_approved:
+            description = f"Your appointment {instance.description} on {appointment_date} has been updated and approved by {modified_by}."
+        else:
+            description = f"Your appointment {instance.description} on {appointment_date} has been updated by {modified_by}."
+
         notification = AppointmentNotification.objects.create(
             id=generate_uuid(),
             user=created_by,  # Associate the notification with the user who created the appointment
             appointment=instance,
-            description=f"Your appointment {instance.description} on {appointment_date} has been updated by {modified_by}."
+            description=description
         )
             
 

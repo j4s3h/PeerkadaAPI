@@ -12,10 +12,10 @@ class GetNotificationView(APIView):
         user = request.user
 
         # Get unread notifications
-        unread_notifications = Notification.objects.filter(user=user, is_read=False)
+        unread_notifications = Notification.objects.filter(user=user, is_read=False).order_by('-created_at')
 
         # Get read notifications
-        read_notifications = Notification.objects.filter(user=user, is_read=True)
+        read_notifications = Notification.objects.filter(user=user, is_read=True).order_by('-created_at')
 
         # Serialize the data
         unread_serializer = NotificationSerializer(unread_notifications, many=True)

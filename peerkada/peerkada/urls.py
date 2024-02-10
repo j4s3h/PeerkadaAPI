@@ -33,6 +33,8 @@ from core.features.versions.v1p0.display_emotion.views.display_emotion_views imp
 from core.features.versions.v1p0.edit_last_form_stats.views.edit_last_form_views import EditFormStatsViews
 from core.features.versions.v1p0.display_counselors.views.display_counselors_views import DisplayPeerkadaCounselorViews
 from core.features.versions.v1p0.create_conversation_chat_with_counselor.views.conversation_with_counselor_views import CreateCounselorMessagesViews, UserReplyToMessagesViews, ReadCounselorMesssagesViews
+from core.features.versions.v1p0.user_list.views.list_of_register_accounts_views import ListOfRegisteredAccounts
+
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('v1p0/register/account/', RegisterAccountViews.as_view(), name = 'register_account'),
@@ -56,7 +58,8 @@ urlpatterns = [
     path('v1p0/display/counselor/', DisplayPeerkadaCounselorViews.as_view(), name = 'display_counselor'),
     path('v1p0/chat/', CreateCounselorMessagesViews.as_view(), name = 'create_counselor_messsages'),
     path('v1p0/chat/<str:conversation_id>/', UserReplyToMessagesViews.as_view(),name ='view_conversation'),
-    path('v1p0/display/chat/',ReadCounselorMesssagesViews.as_view(), name = 'read_counselor_chat')
+    path('v1p0/display/chat/',ReadCounselorMesssagesViews.as_view(), name = 'read_counselor_chat'),
+    path('v1p0/display/registered_accounts/', ListOfRegisteredAccounts.as_view(),  name = 'display_registered_accounts')
     
 ]
 

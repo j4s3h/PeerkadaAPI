@@ -20,9 +20,8 @@ class CreateAppointmentView(APIView):
             appointment_date = serializer.validated_data['date']
             
             if appointment_date < datetime.now().date():
-                return Response({"message": "Cannot create appointments in the past.", "status": "bad_request"}, status=400)
+                return Response({"message": "Cannot create appointments in the past.", "status": bad_request})
 
-            # Check if the user already has an approved appointment within 24 hours of the given date
             existing_appointments = Appointment.objects.filter(
                 created_by=request.user,
                 is_approved=True,
@@ -31,7 +30,7 @@ class CreateAppointmentView(APIView):
             )
 
             if existing_appointments.exists():
-                return Response({"message": "You already have an approved appointment within 24 hours of this date.", "status": "bad_request"}, status=400)
+                return Response({"message": "You already have an approved appointment within 24 hours of this date.", "status":bad_request})
 
             uid = generate_uuid()
             appointment_instance = serializer.save(

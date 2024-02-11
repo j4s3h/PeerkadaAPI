@@ -63,7 +63,7 @@ class EditAppointmentViews(APIView):
                         date__lte=appointment_date + timedelta(days=1)
                     )
                     if existing_appointments.exists():
-                        return Response({"message": "The creator of this appointment already has an approved appointment within 24 hours of the edited date.", "status": "bad_request"}, status=400)
+                        return Response({"message": "The creator of this appointment already has an approved appointment within 24 hours of the edited date.", "status": bad_request}, status=400)
 
                 self.perform_update(serializer)
                 data = serializer.data

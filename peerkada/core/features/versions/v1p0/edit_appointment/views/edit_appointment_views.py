@@ -5,7 +5,7 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
 from ..serializers.edit_appointment_serializers import EditAppointmentSerializer
-
+from datetime import datetime, timedelta
 class EditAppointmentViews(APIView):
     permission_classes = [IsAuthenticated]
 
@@ -40,7 +40,6 @@ class EditAppointmentViews(APIView):
             appointment=instance,
             description=description
         )
-            
 
     def put(self, request, pk):
         data = {}
@@ -53,14 +52,31 @@ class EditAppointmentViews(APIView):
         if request.user == appointment.created_by or request.user.is_counselor:
             serializer = EditAppointmentSerializer(appointment, data=request.data)
             if serializer.is_valid():
+                appointment_date = serializer.validated_data['date']
+                
+                # Check if the user who created the appointment already has an approved appointment within 24 hours of the edited appointment's date
+                if appointment.created_by != request.user and appointment_date:
+                    existing_appointments = Appointment.objects.filter(
+                        created_by=appointment.created_by,
+                        is_approved=True,
+                        date__gte=appointment_date - timedelta(days=1),
+                        date__lte=appointment_date + timedelta(days=1)
+                    )
+                    if existing_appointments.exists():
+                        return Response({"message": "The creator of this appointment already has an approved appointment within 24 hours of the edited date.", "status": "bad_request"}, status=400)
+
                 self.perform_update(serializer)
                 data = serializer.data
                 message = 'Successfully Updated'
                 status_code = ok
+                errors =serializer.errors
+                return Response({"message": message, "data": data, "status": status_code, "errors": errors})
             else:
+                data={}
                 message = 'Error'
                 status_code = bad_request
                 errors = serializer.errors
+                return Response({"message": message, "data": data, "status": status_code, "errors": errors})
         else:
             message = 'You do not have permission to edit this appointment.'
             status_code = forbidden

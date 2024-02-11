@@ -18,9 +18,12 @@ class CreateAppointmentView(APIView):
         # Check if there are any future appointments
         has_future_appointment = existing_appointments.filter(date__gte=datetime.now()).exists()
 
-        # Check if user already has a future appointment
-        if has_future_appointment:
-            return Response({"message": "You already have a future appointment.", "status": bad_request})
+        # Check if there are any pending (waiting for approval) appointments
+        has_pending_appointment = existing_appointments.filter(is_approved=False).exists()
+
+        # If there is a pending appointment in the future, prevent user from creating a new one
+        if has_pending_appointment and has_future_appointment:
+            return Response({"message": "You already have a future appointment waiting for admin's approval. Please wait for admin's approval.", "status": bad_request})
 
         data = request.data.copy()
         data['created_by'] = request.user.id

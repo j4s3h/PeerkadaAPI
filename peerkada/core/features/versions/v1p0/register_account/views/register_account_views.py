@@ -12,12 +12,11 @@ from django.core.exceptions import ValidationError
 
 
 
-
 class RegisterAccountViews(APIView):
     def post(self, request):
         serializer = RegisterAccountSerializer(data=request.data)
         data = {}
-        errors = []
+        errors = {}
         status_code = None
         message = None
 
@@ -27,22 +26,22 @@ class RegisterAccountViews(APIView):
             try:
                 validate_password(request.data['password'])
             except ValidationError as e:
-                errors.append({"password": list(e.messages)})
+                errors["password"] = list(e.messages)
 
             try:
                 validate_birthday(serializer.validated_data['birthday'])
             except ValidationError as e:
-                errors.append({"birthday": list(e.messages)})
+                errors["birthday"] = list(e.messages)
 
             try:
                 validate_email(serializer.validated_data['email'])
             except ValidationError as e:
-                errors.append({"email": list(e.messages)})
+                errors["email"] = list(e.messages)
 
             try:
                 validate_username(serializer.validated_data['username'])
             except ValidationError as e:
-                errors.append({"username": list(e.messages)})
+                errors["username"] = list(e.messages)
 
             if errors:
                 status_code = bad_request  # Set status code to 400
@@ -61,19 +60,12 @@ class RegisterAccountViews(APIView):
             )
 
             account_data = PeerkadaAccount.objects.filter(id=uid).values('id', 'username', 'email', 'birthday', 'sex', 'is_counselor')
-            formatted_data = {
-                'id': account_data[0]['id'],
-                'username': account_data[0]['username'],
-                'email': account_data[0]['email'],
-                'birthday': account_data[0]['birthday'].strftime('%Y/%m/%d'),  # Format the date here
-                'sex': account_data[0]['sex'],
-                'is_counselor': account_data[0]['is_counselor'],
-            }
+            data = account_data
 
             status_code = created  # Set status code to 201
             message = 'Successfully Created'
 
-            return Response({"message": message, "data": formatted_data, "status": status_code, "errors": errors}, status=status_code)
+            return Response({"message": message, "data": data, "status": status_code, "errors": errors}, status=status_code)
 
         errors = serializer.errors
         status_code = bad_request  # Set status code to 400
@@ -83,7 +75,7 @@ class RegisterAccountCounselorViews(APIView):
     def post(self, request):
         serializer = RegisterAccountSerializer(data=request.data)
         data = {}
-        errors = []
+        errors = {}
         status_code = None
         message = None
 
@@ -93,22 +85,22 @@ class RegisterAccountCounselorViews(APIView):
             try:
                 validate_password(request.data['password'])
             except ValidationError as e:
-                errors.append({"password": list(e.messages)})
+                errors["password"] = list(e.messages)
 
             try:
                 validate_birthday(serializer.validated_data['birthday'])
             except ValidationError as e:
-                errors.append({"birthday": list(e.messages)})
+                errors["birthday"] = list(e.messages)
 
             try:
                 validate_email(serializer.validated_data['email'])
             except ValidationError as e:
-                errors.append({"email": list(e.messages)})
+                errors["email"] = list(e.messages)
 
             try:
                 validate_username(serializer.validated_data['username'])
             except ValidationError as e:
-                errors.append({"username": list(e.messages)})
+                errors["username"] = list(e.messages)
 
             if errors:
                 status_code = bad_request  # Set status code to 400
@@ -128,19 +120,12 @@ class RegisterAccountCounselorViews(APIView):
             )
 
             account_data = PeerkadaAccount.objects.filter(id=uid).values('id', 'username', 'email', 'birthday', 'sex', 'is_counselor')
-            formatted_data = {
-                'id': account_data[0]['id'],
-                'username': account_data[0]['username'],
-                'email': account_data[0]['email'],
-                'birthday': account_data[0]['birthday'].strftime('%Y/%m/%d'),  # Format the date here
-                'sex': account_data[0]['sex'],
-                'is_counselor': account_data[0]['is_counselor'],
-            }
+            data = account_data
 
             status_code = created  # Set status code to 201
             message = 'Successfully Created'
 
-            return Response({"message": message, "data": formatted_data, "status": status_code, "errors": errors}, status=status_code)
+            return Response({"message": message, "data": data, "status": status_code, "errors": errors}, status=status_code)
 
         errors = serializer.errors
         status_code = bad_request  # Set status code to 400

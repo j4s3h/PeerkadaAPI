@@ -5,57 +5,59 @@ from rest_framework.permissions import IsAuthenticated
 from peerkada.utilities.generate_uid import generate_uuid
 from peerkada.utilities.constant import *
 from ..serializers.create_appointment_serializers import CreateAppointmentSerializer
-from datetime import datetime, timedelta
+from datetime import datetime
 
 
 class CreateAppointmentView(APIView):
     permission_classes = [IsAuthenticated]
 
     def post(self, request, *args, **kwargs):
+        # Get user's existing appointments
+        existing_appointments = Appointment.objects.filter(created_by=request.user)
+
+        # Check if there are any future appointments
+        has_future_appointment = existing_appointments.filter(date__gte=datetime.now()).exists()
+
+        # Check if user already has a future appointment
+        if has_future_appointment:
+            return Response({"message": "You already have a future appointment.", "status": bad_request})
+
         data = request.data.copy()
         data['created_by'] = request.user.id
         serializer = CreateAppointmentSerializer(data=data)
 
         if serializer.is_valid():
             appointment_date = serializer.validated_data['date']
-            
+
             if appointment_date < datetime.now().date():
                 return Response({"message": "Cannot create appointments in the past.", "status": bad_request})
 
-            existing_appointments = Appointment.objects.filter(
-                created_by=request.user,
-                is_approved=True,
-                date__gte=appointment_date - timedelta(days=1),
-                date__lte=appointment_date + timedelta(days=1)
-            )
-
-            if existing_appointments.exists():
-                return Response({"message": "You already have an approved appointment within 24 hours of this date.", "status":bad_request})
-
             uid = generate_uuid()
+            formatted_date = appointment_date.strftime('%Y-%m-%d')
+            serializer.validated_data['date'] = formatted_date
+
             appointment_instance = serializer.save(
                 id=uid,
-                created_by=request.user,
+                created_by=PeerkadaAccount.objects.get(id=request.user.id),
             )
 
             response_data = {
-                'appointment': {
-                    'id': appointment_instance.id,
-                    'description': appointment_instance.description,
-                    'date': appointment_instance.date.strftime('%Y-%m-%d'),  
-                    'created_by': {
-                        'id': request.user.id,
-                        'username': request.user.username,
-                        'email': request.user.email,
-                        'birthday': str(request.user.birthday),
-                        'sex': request.user.sex,
-                    },
+                'id': appointment_instance.id,
+                'description': appointment_instance.description,
+                'date': appointment_instance.date,  # Use the formatted date
+
+                'created_by': {
+                    'id': request.user.id,
+                    'username': request.user.username,
+                    'email': request.user.email,
+                    'birthday': str(request.user.birthday),
+                    'sex': request.user.sex,
                 }
             }
 
             message = 'Successfully Created'
-            status = 201
-            return Response({"message": message, "data": response_data, "status": status})
+            return Response({"message": message, "data": response_data, "status": created})
 
         errors = serializer.errors
-        return Response({"status": 400, "errors": errors})
+        status = bad_request
+        return Response({"status": status, "errors": errors})

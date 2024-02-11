@@ -54,8 +54,12 @@ class EditAppointmentViews(APIView):
             if serializer.is_valid():
                 appointment_date = serializer.validated_data['date']
                 
+                # Check if the new appointment date is in the past
+                if appointment_date < datetime.now().date():
+                    return Response({"message": "Cannot set appointments to the past date.", "status": bad_request})
+
                 # Check if the user who created the appointment already has an approved appointment within 24 hours of the edited appointment's date
-                if appointment.created_by != request.user and appointment_date:
+                if not request.user.is_counselor and appointment.created_by != request.user and appointment_date:
                     existing_appointments = Appointment.objects.filter(
                         created_by=appointment.created_by,
                         is_approved=True,
@@ -63,16 +67,16 @@ class EditAppointmentViews(APIView):
                         date__lte=appointment_date + timedelta(days=1)
                     )
                     if existing_appointments.exists():
-                        return Response({"message": "The creator of this appointment already has an approved appointment within 24 hours of the edited date.", "status": bad_request}, status=400)
+                        return Response({"message": "The creator of this appointment already has an approved appointment within 24 hours of the edited date.", "status": bad_request})
 
                 self.perform_update(serializer)
                 data = serializer.data
                 message = 'Successfully Updated'
                 status_code = ok
-                errors =serializer.errors
+                errors = serializer.errors
                 return Response({"message": message, "data": data, "status": status_code, "errors": errors})
             else:
-                data={}
+                data = {}
                 message = 'Error'
                 status_code = bad_request
                 errors = serializer.errors

@@ -2,6 +2,8 @@ from django.db import models
 from django.utils.timesince import timesince
 from django.contrib.auth.models import AbstractUser
 from django.conf import settings
+from django.db.models.signals import pre_save
+from django.dispatch import receiver
 
 class PeerkadaAccount(AbstractUser):
     id = models.CharField(max_length=5, primary_key=True)
@@ -114,6 +116,13 @@ class Appointment(models.Model):
     created_by = models.ForeignKey(PeerkadaAccount, related_name = 'appointee', on_delete=models.CASCADE)
     created_at = models.DateTimeField(auto_now_add=True)
     is_approved = models.BooleanField(default=False)
+    is_modified = models.BooleanField(default=False)
+@receiver(pre_save, sender=Appointment)
+def mark_as_modified(sender, instance, **kwargs):
+    
+    if instance.pk is not None:
+        # If the instance has a primary key (i.e., it's an existing record being updated)
+        instance.is_modified = True
 
 class ConversationWithCounselors(models.Model):
     id = models.CharField(max_length = 5 , primary_key=True)

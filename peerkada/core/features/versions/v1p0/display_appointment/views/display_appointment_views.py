@@ -9,22 +9,27 @@ class DisplayAppointmentViews(APIView):
         if user.is_counselor:
             # If the user is a counselor, retrieve all appointments
             appointments = Appointment.objects.all().order_by('created_at')
+            serializer = DisplayAppointmentSerializer(appointments, many=True)
         else:
-            # If the user is not a counselor, retrieve appointments created by them
-            appointments = Appointment.objects.filter(created_by=user).order_by('created_at')
-        return appointments
+            # If the user is not a counselor, retrieve the most recent appointment created by them
+            appointment = Appointment.objects.filter(created_by=user).order_by('-created_at').first()
+            if appointment is not None:
+                serializer = DisplayAppointmentSerializer(appointment)
+            else:
+                serializer = None
+        return serializer
 
     def get(self, request):
         requesting_user = request.user
-        appointments = self.get_appointments(requesting_user)
-
-        # Serialize the list of instances, not the queryset itself
-        serializer = DisplayAppointmentSerializer(appointments, many=True)
-        data = serializer.data
+        serializer = self.get_appointments(requesting_user)
+        
+        if serializer is not None:
+            data = serializer.data
+        else:
+            data = []
 
         return Response({
             "message": "Appointment requests retrieved successfully",
             "data": data,
-            "status": ok,
-            "errors": {}
-        })
+            "status": ok,  
+            "errors": {}  })

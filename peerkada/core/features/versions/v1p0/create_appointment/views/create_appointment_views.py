@@ -38,7 +38,7 @@ class CreateAppointmentView(APIView):
             uid = generate_uuid()
             formatted_date = appointment_date.strftime('%Y-%m-%d')
             serializer.validated_data['date'] = formatted_date
-
+            serializer.validated_data['is_modified'] = False
             appointment_instance = serializer.save(
                 id=uid,
                 created_by=PeerkadaAccount.objects.get(id=request.user.id),

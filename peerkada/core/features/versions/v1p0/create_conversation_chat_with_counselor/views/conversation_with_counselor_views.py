@@ -6,7 +6,7 @@ from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
 from django.db import models
 from ..serializers.conversation_with_counselor_serializers import CreateConversationWithCounselorsSerializer, CreateCounselorMessagesSerializer, ConversationWithCounselorsSerializer
-
+from datetime import datetime
 from django.shortcuts import get_object_or_404
 
 
@@ -153,52 +153,60 @@ class ReadCounselorMesssagesViews(APIView):
 
     def get(self, request, *args, **kwargs):
         user = request.user
-        conversation_id = request.query_params.get('conversation_id', None)
+        conversation_id = request.query_params.get('conversation_id')
         is_counselor = user.is_counselor
-        status = ok  # Assume success by default
+        status = 'ok'  # Corrected status strings
         errors = {}
 
         if not is_counselor:
             try:
                 conversation = ConversationWithCounselors.objects.get(users=user)
                 serializer = ConversationWithCounselorsSerializer(conversation)
+                conversation_data = serializer.data
+                # Convert created_at and modified_at to desired format
+                conversation_data['created_at'] = self.format_datetime(conversation_data['created_at'])
+                conversation_data['modified_at'] = self.format_datetime(conversation_data['modified_at'])
                 message = 'Conversation'
-                data = serializer.data
+                data = conversation_data
             except ConversationWithCounselors.DoesNotExist:
                 message = 'not_found'
                 data = {}
-                status = not_Found  # Set status to not found if conversation is not found
+                status = not_Found  # Corrected status strings
 
         elif is_counselor and conversation_id:
-            # If the user is a counselor and conversation_id is provided, retrieve information about the specified conversation
             try:
                 conversation = ConversationWithCounselors.objects.get(id=conversation_id, users=user)
                 serializer = ConversationWithCounselorsSerializer(conversation)
+                conversation_data = serializer.data
+                # Convert created_at and modified_at to desired format
+                conversation_data['created_at'] = self.format_datetime(conversation_data['created_at'])
+                conversation_data['modified_at'] = self.format_datetime(conversation_data['modified_at'])
                 message = 'Conversation'
-                data = serializer.data
+                data = conversation_data
             except ConversationWithCounselors.DoesNotExist:
                 message = 'not_found'
                 data = {}
-                status = not_Found  # Set status to not found if conversation is not found
+                status = not_Found
 
         elif is_counselor:
-            # If the user is a counselor and no conversation_id is provided, retrieve information about all conversations
             conversations = ConversationWithCounselors.objects.filter(users=user)
             conversations_info = []
 
             for conversation in conversations:
                 messages = CounselorMessages.objects.filter(sent_to=conversation)
                 messages_info = []
-                other_usernames = set()  # Store unique usernames of non-counselor users
+                other_usernames = set()
 
                 for message in messages:
-                    sender_username = message.created_by.username  # Default to sender's username
+                    sender_username = message.created_by.username
                     if not message.created_by.is_counselor:
-                        other_usernames.add(message.created_by.username)  # Add sender's username if not a counselor
+                        other_usernames.add(message.created_by.username)
+
+                    created_at_formatted = self.format_datetime(message.created_at)
 
                     message_info = {
                         'body': message.body,
-                        'created_at': message.created_at,
+                        'created_at': created_at_formatted,
                         'created_by': message.created_by.name if not message.created_by.is_counselor else message.created_by.username,
                         'username': sender_username,
                         'is_counselor': message.created_by.is_counselor
@@ -206,7 +214,6 @@ class ReadCounselorMesssagesViews(APIView):
                     messages_info.append(message_info)
 
                 if other_usernames:
-                    
                     name = next(iter(other_usernames))
                 else:
                     name = None
@@ -215,7 +222,6 @@ class ReadCounselorMesssagesViews(APIView):
                     'username': name,
                     'conversation_id': conversation.id,
                     'messages': messages_info,
-                    
                 }
                 conversations_info.append(conversation_info)
 
@@ -223,7 +229,12 @@ class ReadCounselorMesssagesViews(APIView):
             data = conversations_info
             status = ok
 
-        # Return the response
         return Response({"message": message, "is_counselor": is_counselor, "data": data, "status": status, "errors": errors})
-        
+
+    def format_datetime(self, datetime_string):
+        # Parse datetime string to datetime object
+        dt_object = datetime.strptime(datetime_string, '%Y-%m-%dT%H:%M:%S.%fZ')
+        # Format datetime object to desired format
+        formatted_datetime = dt_object.strftime('%Y-%m-%d-%H:%M:%S')
+        return formatted_datetime
 

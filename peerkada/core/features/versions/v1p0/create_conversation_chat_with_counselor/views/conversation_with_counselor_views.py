@@ -227,7 +227,7 @@ class ReadCounselorMesssagesViews(APIView):
 
             message = 'Conversations'
             data = conversations_info
-            status = 'ok'
+            status = ok
 
         return Response({"message": message, "is_counselor": is_counselor, "data": data, "status": status, "errors": errors})
 

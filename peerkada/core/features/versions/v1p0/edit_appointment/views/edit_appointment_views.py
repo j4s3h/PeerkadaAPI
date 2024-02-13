@@ -23,6 +23,8 @@ class EditAppointmentViews(APIView):
         instance = serializer.save(modified_by=self.request.user)
         appointment_date = instance.date.strftime('%Y-%m-%d')  # Format the appointment date
         self.send_notification(instance, appointment_date)
+        instance.is_modified = True
+        instance.save()
 
     def send_notification(self, instance, appointment_date):
         created_by = instance.created_by

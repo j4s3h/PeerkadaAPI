@@ -117,12 +117,7 @@ class Appointment(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     is_approved = models.BooleanField(default=False)
     is_modified = models.BooleanField(default=False)
-@receiver(pre_save, sender=Appointment)
-def mark_as_modified(sender, instance, **kwargs):
-    
-    if instance.pk is not None:
-        # If the instance has a primary key (i.e., it's an existing record being updated)
-        instance.is_modified = True
+
 
 class ConversationWithCounselors(models.Model):
     id = models.CharField(max_length = 5 , primary_key=True)

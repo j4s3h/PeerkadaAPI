@@ -1,5 +1,5 @@
 from django.contrib import admin
-from core.models import PeerkadaAccount, Stats, Notification, Conversation, ConversationMessages, Appointment, ConversationWithCounselors, CounselorMessages, AppointmentNotification
+from core.models import PeerkadaAccount, Stats, Notification, Conversation, ConversationMessages, Appointment, ConversationWithCounselors, CounselorMessages, AppointmentNotification, EmotionsSharing
 # Register your models here.
 admin.site.register(PeerkadaAccount)
 admin.site.register(Stats)
@@ -10,3 +10,4 @@ admin.site.register(Appointment)
 admin.site.register(ConversationWithCounselors)
 admin.site.register(CounselorMessages)
 admin.site.register(AppointmentNotification)
+admin.site.register(EmotionsSharing)

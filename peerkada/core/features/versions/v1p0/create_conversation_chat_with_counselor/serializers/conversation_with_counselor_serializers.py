@@ -1,5 +1,6 @@
 from core.models import PeerkadaAccount, ConversationWithCounselors, CounselorMessages
 from rest_framework import serializers
+from datetime import datetime
 class DisplayPeerkadaAccountSerializer(serializers.ModelSerializer):
     class Meta:
         model = PeerkadaAccount
@@ -27,6 +28,7 @@ class PeerkadaAccountSerializer(serializers.ModelSerializer):
 
 class CounselorMessagesSerializer(serializers.ModelSerializer):
     created_by = PeerkadaAccountSerializer()
+    created_at = serializers.DateTimeField(format='%Y-%m-%d-%H:%M:%S')
 
     class Meta:
         model = CounselorMessages
@@ -35,7 +37,7 @@ class CounselorMessagesSerializer(serializers.ModelSerializer):
 class ConversationWithCounselorsSerializer(serializers.ModelSerializer):
     users = DisplayPeerkadaAccountSerializer(many=True)
     messages = CounselorMessagesSerializer(many=True, read_only=True, source='messages_counselor')  # Make sure source matches related_name
-
+    created_at = serializers.DateTimeField(format='%Y-%m-%d-%H:%M:%S')
     class Meta:
         model = ConversationWithCounselors
         fields = ['id', 'users', 'created_at', 'modified_at', 'messages']

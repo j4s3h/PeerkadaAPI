@@ -116,6 +116,7 @@ class RegisterAccountCounselorViews(APIView):
                 birthday=serializer.validated_data['birthday'],
                 email=serializer.validated_data['email'],
                 sex=serializer.validated_data['sex'],
+                bio = 'Please Update your bio',
                 password=encrypted_password, 
                 is_counselor=True
             )

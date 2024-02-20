@@ -56,10 +56,11 @@ class RegisterAccountViews(APIView):
                 birthday=serializer.validated_data['birthday'],
                 email=serializer.validated_data['email'],
                 sex=serializer.validated_data['sex'],
+                bio = 'Please Update your bio',
                 password=encrypted_password
             )
 
-            account_data = PeerkadaAccount.objects.filter(id=uid).values('id', 'username', 'email', 'birthday', 'sex', 'is_counselor')
+            account_data = PeerkadaAccount.objects.filter(id=uid).values('id','bio', 'username', 'email', 'birthday', 'sex', 'is_counselor')
             data = account_data
 
             status_code = created  # Set status code to 201
@@ -119,7 +120,7 @@ class RegisterAccountCounselorViews(APIView):
                 is_counselor=True
             )
 
-            account_data = PeerkadaAccount.objects.filter(id=uid).values('id', 'username', 'email', 'birthday', 'sex', 'is_counselor')
+            account_data = PeerkadaAccount.objects.filter(id=uid).values('id','bio', 'username', 'email', 'birthday', 'sex', 'is_counselor')
             data = account_data
 
             status_code = created  # Set status code to 201

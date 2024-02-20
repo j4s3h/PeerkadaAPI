@@ -21,7 +21,7 @@ class RegisterAccountSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = PeerkadaAccount
-        fields = ['name', 'username', 'birthday', 'email', 'sex', 'created', 'password', 'password_confirm']
+        fields = ['name', 'username', 'bio', 'birthday', 'email', 'sex', 'created', 'password', 'password_confirm']
     
     def validate(self, data):
         if data['password'] != data['password_confirm']:

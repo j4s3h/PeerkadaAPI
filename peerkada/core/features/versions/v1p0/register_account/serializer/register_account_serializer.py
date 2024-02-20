@@ -21,12 +21,18 @@ class RegisterAccountSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = PeerkadaAccount
-        fields = ['name', 'username', 'bio', 'birthday', 'email', 'sex', 'created', 'password', 'password_confirm']
+        fields = ['name', 'username', 'birthday', 'email', 'sex', 'created', 'password', 'password_confirm']
     
     def validate(self, data):
         if data['password'] != data['password_confirm']:
             raise serializers.ValidationError("Passwords do not match.")
         return data
+    def validate_email(self, value):
+        if not value.endswith('@shs.gendejesus.edu.ph'):
+            raise ValidationError("it seems like you are not an Student/Faculty member of General de Jesus College.")
+        if PeerkadaAccount.objects.filter(email=value).exists():
+            raise ValidationError("Email address is already in use.")
+        return value
 
     def create(self, validated_data):
         # Remove the password_confirm field as it's not part of the model

@@ -37,6 +37,8 @@ from core.features.versions.v1p0.user_list.views.list_of_register_accounts_views
 from core.features.versions.v1p0.display_appointment_notifications.views.display_appointment_notifications_views import DisplayAppointmentNotificationView, MarkAppointmentNotificationReadView
 from core.features.versions.v1p0.approve_appointment.views.approve_appointment_views import ApproveAppointmentViews
 from core.features.versions.v1p0.display_my_user_profile.views.display_user_profile_views import DisplayMyProfileViews
+from core.features.versions.v1p0.edit_profile.views.edit_profile_views import EditProfileViews
+
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('v1p0/register/account/', RegisterAccountViews.as_view(), name = 'register_account'),
@@ -65,7 +67,8 @@ urlpatterns = [
     path('v1p0/user/appointment_notification/', DisplayAppointmentNotificationView.as_view(), name = 'display_appointment_notification'),
     path('v1p0/user/appointment_notification/read/<notification_id>/', MarkAppointmentNotificationReadView.as_view(), name = 'read_appointment_notification'),
     path('v1p0/approve/appointment/<appointment_id>/', ApproveAppointmentViews.as_view(), name = 'approve_appointment'),
-    path('v1p0/profile/', DisplayMyProfileViews.as_view(), name = 'display_profile')
+    path('v1p0/profile/', DisplayMyProfileViews.as_view(), name = 'display_profile'),
+    path ('v1p0/profile/edit/', EditProfileViews.as_view(), name = 'edit_profile_views')
 ]
 
          

@@ -23,6 +23,7 @@ class PeerkadaAccount(AbstractUser):
     password = models.CharField(max_length=50)
     is_counselor = models.BooleanField(default=False)
     avatar = models.ImageField(null=True)
+    bio = models.CharField(max_length=100, null = True)
     USERNAME_FIELD = 'username' 
     def get_avatar(self):
         if self.avatar:

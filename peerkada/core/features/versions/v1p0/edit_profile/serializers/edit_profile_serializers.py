@@ -16,4 +16,4 @@ class PeerkadaAccountSerializer(serializers.ModelSerializer):
     
     class Meta:
         model = PeerkadaAccount
-        fields = [ 'name', 'username', 'birthday']
+        fields = [ 'name', 'username', 'birthday', 'bio']

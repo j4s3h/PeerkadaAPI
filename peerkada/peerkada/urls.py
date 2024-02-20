@@ -59,7 +59,7 @@ urlpatterns = [
     path('v1p0/create/emotion/', CreateEmotionViews.as_view(), name = 'create_emotion_views'),
     path('v1p0/display/emotion/', DisplayEmotionViews.as_view(), name = 'display_emotion_views'),
     path('v1p0/display/emotion/<pk>/', DisplayEmotionIndivViews.as_view(), name = 'display_emotion_individual_views'),
-    path ('v1p0/display/emotions/<str:user_id>/',DisplayEmotionByUserViews.as_view(), name = 'display_emotion_by_user'),
+    path ('v1p0/display/emotion/user/<str:user_id>/',DisplayEmotionByUserViews.as_view(), name = 'display_emotion_by_user'),
     path('v1p0/edit/form/', EditFormStatsViews.as_view(), name = 'edit_form_stats_view'),
     path('v1p0/display/counselor/', DisplayPeerkadaCounselorViews.as_view(), name = 'display_counselor'),
     path('v1p0/chat/', CreateCounselorMessagesViews.as_view(), name = 'create_counselor_messsages'),
@@ -70,7 +70,7 @@ urlpatterns = [
     path('v1p0/user/appointment_notification/read/<notification_id>/', MarkAppointmentNotificationReadView.as_view(), name = 'read_appointment_notification'),
     path('v1p0/approve/appointment/<appointment_id>/', ApproveAppointmentViews.as_view(), name = 'approve_appointment'),
     path('v1p0/profile/', DisplayMyProfileViews.as_view(), name = 'display_profile'),
-    path ('v1p0/profile/edit/', EditProfileViews.as_view(), name = 'edit_profile_views')
+    path('v1p0/profile/edit/', EditProfileViews.as_view(), name = 'edit_profile_views')
 ]
 
          

@@ -2,6 +2,8 @@ from django.db import models
 from django.utils.timesince import timesince
 from django.contrib.auth.models import AbstractUser
 from django.conf import settings
+from django.db.models.signals import pre_save
+from django.dispatch import receiver
 
 class PeerkadaAccount(AbstractUser):
     id = models.CharField(max_length=5, primary_key=True)
@@ -21,6 +23,7 @@ class PeerkadaAccount(AbstractUser):
     password = models.CharField(max_length=50)
     is_counselor = models.BooleanField(default=False)
     avatar = models.ImageField(null=True)
+    bio = models.CharField(max_length=100, null = True)
     USERNAME_FIELD = 'username' 
     def get_avatar(self):
         if self.avatar:
@@ -113,7 +116,9 @@ class Appointment(models.Model):
     modified_by = models.ForeignKey(PeerkadaAccount, related_name = 'counselor_name', on_delete=models.CASCADE, null =True)
     created_by = models.ForeignKey(PeerkadaAccount, related_name = 'appointee', on_delete=models.CASCADE)
     created_at = models.DateTimeField(auto_now_add=True)
-    is_attended = models.BooleanField(default=False)
+    is_approved = models.BooleanField(default=False)
+    is_modified = models.BooleanField(default=False)
+
 
 class ConversationWithCounselors(models.Model):
     id = models.CharField(max_length = 5 , primary_key=True)
@@ -130,3 +135,11 @@ class CounselorMessages(models.Model):
     created_at = models.DateTimeField(auto_now_add= True)
     created_by =models.ForeignKey(PeerkadaAccount, related_name = 'sent_by', on_delete=models.CASCADE)
 
+
+class AppointmentNotification(models.Model):
+    id = models.CharField(max_length = 5, primary_key = True)
+    user = models.ForeignKey(PeerkadaAccount,related_name='appointment_notifications', on_delete=models.CASCADE)
+    appointment = models.ForeignKey(Appointment, on_delete=models.CASCADE)
+    description = models.TextField()
+    is_read = models.BooleanField(default=False)
+    created_at = models.DateTimeField(auto_now_add=True)

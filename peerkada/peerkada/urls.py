@@ -29,10 +29,16 @@ from core.features.versions.v1p0.display_appointment.views.display_appointment_v
 from core.features.versions.v1p0.edit_appointment.views.edit_appointment_views import EditAppointmentViews
 from core.features.versions.v1p0.delete_appointment.views.delete_appointment_views import DeleteAppointmentViews
 from core.features.versions.v1p0.create_emotions_sharing.views.create_emotions_views import CreateEmotionViews
-from core.features.versions.v1p0.display_emotion.views.display_emotion_views import DisplayEmotionViews
+from core.features.versions.v1p0.display_emotion.views.display_emotion_views import DisplayEmotionViews, DisplayEmotionIndivViews, DisplayEmotionByUserViews
 from core.features.versions.v1p0.edit_last_form_stats.views.edit_last_form_views import EditFormStatsViews
 from core.features.versions.v1p0.display_counselors.views.display_counselors_views import DisplayPeerkadaCounselorViews
 from core.features.versions.v1p0.create_conversation_chat_with_counselor.views.conversation_with_counselor_views import CreateCounselorMessagesViews, UserReplyToMessagesViews, ReadCounselorMesssagesViews
+from core.features.versions.v1p0.user_list.views.list_of_register_accounts_views import ListOfRegisteredAccounts
+from core.features.versions.v1p0.display_appointment_notifications.views.display_appointment_notifications_views import DisplayAppointmentNotificationView, MarkAppointmentNotificationReadView
+from core.features.versions.v1p0.approve_appointment.views.approve_appointment_views import ApproveAppointmentViews
+from core.features.versions.v1p0.display_my_user_profile.views.display_user_profile_views import DisplayMyProfileViews
+from core.features.versions.v1p0.edit_profile.views.edit_profile_views import EditProfileViews
+
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('v1p0/register/account/', RegisterAccountViews.as_view(), name = 'register_account'),
@@ -52,12 +58,19 @@ urlpatterns = [
     path('v1p0/delete/appointment/<pk>/',DeleteAppointmentViews.as_view(),name = 'delete_appointment'),
     path('v1p0/create/emotion/', CreateEmotionViews.as_view(), name = 'create_emotion_views'),
     path('v1p0/display/emotion/', DisplayEmotionViews.as_view(), name = 'display_emotion_views'),
+    path('v1p0/display/emotion/<pk>/', DisplayEmotionIndivViews.as_view(), name = 'display_emotion_individual_views'),
+    path ('v1p0/display/emotion/user/<str:user_id>/',DisplayEmotionByUserViews.as_view(), name = 'display_emotion_by_user'),
     path('v1p0/edit/form/', EditFormStatsViews.as_view(), name = 'edit_form_stats_view'),
     path('v1p0/display/counselor/', DisplayPeerkadaCounselorViews.as_view(), name = 'display_counselor'),
     path('v1p0/chat/', CreateCounselorMessagesViews.as_view(), name = 'create_counselor_messsages'),
     path('v1p0/chat/<str:conversation_id>/', UserReplyToMessagesViews.as_view(),name ='view_conversation'),
-    path('v1p0/display/chat/',ReadCounselorMesssagesViews.as_view(), name = 'read_counselor_chat')
-    
+    path('v1p0/display/chat/',ReadCounselorMesssagesViews.as_view(), name = 'read_counselor_chat'),
+    path('v1p0/display/registered_accounts/', ListOfRegisteredAccounts.as_view(),  name = 'display_registered_accounts'),
+    path('v1p0/user/appointment_notification/', DisplayAppointmentNotificationView.as_view(), name = 'display_appointment_notification'),
+    path('v1p0/user/appointment_notification/read/<notification_id>/', MarkAppointmentNotificationReadView.as_view(), name = 'read_appointment_notification'),
+    path('v1p0/approve/appointment/<appointment_id>/', ApproveAppointmentViews.as_view(), name = 'approve_appointment'),
+    path('v1p0/profile/', DisplayMyProfileViews.as_view(), name = 'display_profile'),
+    path('v1p0/profile/edit/', EditProfileViews.as_view(), name = 'edit_profile_views')
 ]
 
          

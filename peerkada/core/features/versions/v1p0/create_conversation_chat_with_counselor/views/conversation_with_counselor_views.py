@@ -6,7 +6,7 @@ from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
 from django.db import models
 from ..serializers.conversation_with_counselor_serializers import CreateConversationWithCounselorsSerializer, CreateCounselorMessagesSerializer, ConversationWithCounselorsSerializer
-
+from datetime import datetime
 from django.shortcuts import get_object_or_404
 
 
@@ -35,7 +35,7 @@ class CreateCounselorMessagesViews(APIView):
             # Use the existing conversation
             conversation = existing_conversation.first()
         else:
-            # Create a new conversation with all counselors
+            
             serializer = CreateConversationWithCounselorsSerializer(
                 data={'users': [user.id] + list(potential_recipients.values_list('id', flat=True))}
             )
@@ -159,7 +159,6 @@ class ReadCounselorMesssagesViews(APIView):
         errors = {}
 
         if not is_counselor:
-            
             try:
                 conversation = ConversationWithCounselors.objects.get(users=user)
                 serializer = ConversationWithCounselorsSerializer(conversation)
@@ -188,20 +187,42 @@ class ReadCounselorMesssagesViews(APIView):
             conversations_info = []
 
             for conversation in conversations:
-                latest_message = CounselorMessages.objects.filter(sent_to=conversation).latest('created_at')
+                messages = CounselorMessages.objects.filter(sent_to=conversation)
+                messages_info = []
+                other_usernames = set()  # Store unique usernames of non-counselor users
+
+                for message in messages:
+                    sender_username = message.created_by.username  # Default to sender's username
+                    if not message.created_by.is_counselor:
+                        other_usernames.add(message.created_by.username)  # Add sender's username if not a counselor
+
+                    message_info = {
+                        'body': message.body,
+                        'created_at': message.created_at,
+                        'created_by': message.created_by.name if not message.created_by.is_counselor else message.created_by.username,
+                        'username': sender_username,
+                        'is_counselor': message.created_by.is_counselor
+                    }
+                    messages_info.append(message_info)
+
+                if other_usernames:
+                    
+                    name = next(iter(other_usernames))
+                else:
+                    name = None
+
                 conversation_info = {
-                    'conversation_id': conversation.id,                    
-                        'content': latest_message.body,
-                        'timestamp': latest_message.created_at,
-                        'sent_by': latest_message.created_by.name,
-                        'is_counselor':latest_message.created_by.is_counselor
+                    'username': name,
+                    'conversation_id': conversation.id,
+                    'messages': messages_info,
+                    
                 }
                 conversations_info.append(conversation_info)
 
             message = 'Conversations'
             data = conversations_info
+            status = ok
 
         # Return the response
         return Response({"message": message, "is_counselor": is_counselor, "data": data, "status": status, "errors": errors})
-        
-
+   

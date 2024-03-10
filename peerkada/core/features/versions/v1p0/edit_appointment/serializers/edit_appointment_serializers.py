@@ -24,7 +24,7 @@ class EditAppointmentSerializer(serializers.ModelSerializer):
     modified_by = DisplayReadPeerkadaAccountSerializer(many = False, read_only = True)
     class Meta:
         model= Appointment
-        fields = ['description','created_by' , 'date', 'modified_by'] 
+        fields = ['description','created_by' , 'date', 'modified_by', 'is_approved'] 
         
 
 

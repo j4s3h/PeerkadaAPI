@@ -9,7 +9,7 @@ class DisplayEmotionSharingSerializer(serializers.ModelSerializer):
     name = serializers.CharField(source='created_by.name', read_only=True)
     class Meta:
         model = EmotionsSharing
-        fields = ['id','body', 'comments', 'like', 'created_at', 'name']
+        fields = ['id','body', 'comments', 'like', 'created_at', 'created_by', 'name']
 
 
 

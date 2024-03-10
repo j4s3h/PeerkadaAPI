@@ -60,9 +60,9 @@ class CreateFormStatsViews(APIView):
         recent_stats = Stats.objects.filter(created_by=request.user, created_at__gte=last_24_hours)
 
         if recent_stats.exists():
-            message = 'You can only create Stats once every 24 hours, please go to the edit function'
-            status = forbidden
-            return Response({'message': message, 'status': status})
+            time_difference = (timezone.now() - recent_stats.first().created_at).total_seconds() / 3600
+            message = f'You can only create Stats once every 24 hours. Please wait for {24 - time_difference:.2f} hours.'
+            return Response({'message': message}, bad_request)
 
         serializer = CreateFormStatsSerializer(data=data)
 

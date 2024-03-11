@@ -43,11 +43,12 @@ class GetStatsView(APIView):
             message = "You are in the optimum state of mental wellbeing! Keep it up!"
         elif 45 <= stat.total_score <= 55:
             message = "You are in a good state of mental wellbeing!"
-        elif 14 <= stat.total_score <= 42:
+        elif 14 <= stat.total_score <= 44:
+            message = "You are showing signs of being mentally unwell. Please take a quick rest and meditate."
+        elif 10 <= stat.total_score <=13:
             message = "You are showing signs of being mentally unwell. Please take a quick rest and meditate."
             return
 
-        # Create a notification for the user
         Notification.objects.create(id = generate_uuid(), user=stat.created_by, message=message)
 
         # Retrieve user's notifications

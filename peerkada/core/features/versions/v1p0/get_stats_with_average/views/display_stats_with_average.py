@@ -1,31 +1,51 @@
 from rest_framework.response import Response
-from core.models import Stats
 from rest_framework.views import APIView
-from peerkada.utilities.constant import *
+from core.models import Stats
+from rest_framework.status import HTTP_404_NOT_FOUND, HTTP_200_OK
 from django.utils import timezone
 from datetime import timedelta
+from peerkada.utilities.constant import *
+from django.db import models
+from ..serializers.stats_serializers import StatsSerializer
 
 
 class CalculateAveragesView(APIView):
-    def get(self, request):
-        user_stats = Stats.objects.filter(created_by=request.user)
+    def get_stats(self, requesting_user):
+        try:
+            stats = Stats.objects.filter(created_by=requesting_user.id).order_by('-created_at')
+            return stats
+        except Stats.DoesNotExist:
+            return None
 
-        if not user_stats.exists():
-            return Response({'message': 'No stats found for the authenticated user.'}, status=not_Found)
+    def calculate_total_score(self, stat):
+        total_score = 0
+        for field in stat._meta.get_fields():
+            if (
+                field.name not in ['created_by', 'id']
+                and not field.is_relation
+                and isinstance(field, models.IntegerField)
+            ):
+                total_score += int(getattr(stat, field.name, 0))
 
-        weekly_averages = self.calculate_averages(user_stats, weeks=1)
-        monthly_averages = self.calculate_averages(user_stats, weeks=4)
+        setattr(stat, 'total_score', total_score)
 
-        message = 'Success'
-        data = {
-            'weekly_averages': weekly_averages,
-            'monthly_averages': monthly_averages,
-            'overall_averages': self.calculate_overall_averages(user_stats),  # Include overall averages
-        }
+    def check_mental_wellbeing(self, stat):
+        # Calculate or retrieve total score
+        self.calculate_total_score(stat)
 
-        errors = {}
-        status = ok
-        return Response({"message": message, "data": data, "status": status, "errors": errors})
+        # Define your mental well-being criteria
+        if 60 <= stat.total_score <= 70:
+            notif = "You are in the optimum state of mental wellbeing! Keep it up!"
+        elif 45 <= stat.total_score <= 55:
+            notif = "You are in a good state of mental wellbeing!"
+        elif 14 <= stat.total_score <= 44:
+            notif = "You are showing signs of being mentally unwell. Please take a quick rest and meditate."
+        elif 10 <= stat.total_score <= 13:
+            notif = "You are showing signs of being mentally unwell. Please take a quick rest and meditate."
+        else:
+            notif = None  # No message if mental wellbeing is not defined
+        
+        return notif
 
     def calculate_averages(self, stats, weeks):
         time_period_ago = timezone.now() - timedelta(weeks=weeks)
@@ -72,3 +92,29 @@ class CalculateAveragesView(APIView):
         overall_average = sum(overall_values) / len(stats) if len(stats) > 0 else 0
 
         return {'overall_average': overall_average}
+
+    def get(self, request):
+        requesting_user = request.user
+        stats = self.get_stats(requesting_user)
+
+       
+
+        # Iterate over stats and check mental well-being for each
+        for stat in stats:
+            notif = self.check_mental_wellbeing(stat)
+            
+
+        weekly_averages = self.calculate_averages(stats, weeks=1)
+        monthly_averages = self.calculate_averages(stats, weeks=4)
+
+        message = 'Success'
+        data = {
+            'weekly_averages': weekly_averages,
+            'monthly_averages': monthly_averages,
+            'overall_averages': self.calculate_overall_averages(stats),
+            'notif': notif
+        }
+
+        errors = {}
+        status = HTTP_200_OK
+        return Response({"message": message, "data": data, "status": status, "errors": errors})

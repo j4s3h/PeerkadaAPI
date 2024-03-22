@@ -25,7 +25,22 @@ class DisplayEmotionViews(APIView):
         status = ok 
         errors = {}
         return Response({'message': message, 'data': data, 'status': status , 'errors': errors})
-      
+class DisplayEmotionViewsWithoutPagination(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        
+
+        
+        emotions = EmotionsSharing.objects.all().order_by('-created_at')
+        
+
+        serializer = DisplayEmotionSharingSerializer(emotions, many=True)
+        data = serializer.data 
+        message = 'Success'
+        status = ok 
+        errors = {}
+        return Response({'message': message, 'data': data, 'status': status , 'errors': errors})
 
 
 class DisplayEmotionIndivViews(APIView):

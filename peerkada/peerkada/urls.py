@@ -29,7 +29,7 @@ from core.features.versions.v1p0.display_appointment.views.display_appointment_v
 from core.features.versions.v1p0.edit_appointment.views.edit_appointment_views import EditAppointmentViews
 from core.features.versions.v1p0.delete_appointment.views.delete_appointment_views import DeleteAppointmentViews
 from core.features.versions.v1p0.create_emotions_sharing.views.create_emotions_views import CreateEmotionViews
-from core.features.versions.v1p0.display_emotion.views.display_emotion_views import DisplayEmotionViews, DisplayEmotionIndivViews, DisplayEmotionByUserViews
+from core.features.versions.v1p0.display_emotion.views.display_emotion_views import DisplayEmotionViews, DisplayEmotionIndivViews, DisplayEmotionByUserViews, DisplayEmotionViewsWithoutPagination
 from core.features.versions.v1p0.edit_last_form_stats.views.edit_last_form_views import EditFormStatsViews
 from core.features.versions.v1p0.display_counselors.views.display_counselors_views import DisplayPeerkadaCounselorViews
 from core.features.versions.v1p0.create_conversation_chat_with_counselor.views.conversation_with_counselor_views import CreateCounselorMessagesViews, UserReplyToMessagesViews, ReadCounselorMesssagesViews
@@ -58,6 +58,7 @@ urlpatterns = [
     path('v1p0/delete/appointment/<pk>/',DeleteAppointmentViews.as_view(),name = 'delete_appointment'),
     path('v1p0/create/emotion/', CreateEmotionViews.as_view(), name = 'create_emotion_views'),
     path('v1p0/display/emotion/', DisplayEmotionViews.as_view(), name = 'display_emotion_views'),
+    path('v1p0/display/emotions/', DisplayEmotionViewsWithoutPagination.as_view(), name = 'display_emotions_without_pagination'),
     path('v1p0/display/emotion/<pk>/', DisplayEmotionIndivViews.as_view(), name = 'display_emotion_individual_views'),
     path ('v1p0/display/emotion/user/<str:user_id>/',DisplayEmotionByUserViews.as_view(), name = 'display_emotion_by_user'),
     path('v1p0/edit/form/', EditFormStatsViews.as_view(), name = 'edit_form_stats_view'),
